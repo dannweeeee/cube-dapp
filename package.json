@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrations:generate": "drizzle-kit generate",
+    "migrations:drop": "drizzle-kit drop",
+    "db:push": "drizzle-kit push",
+    "studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@coinbase/cbpay-js": "^2.2.1",
