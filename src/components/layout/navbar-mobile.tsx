@@ -68,8 +68,10 @@ const NavMobile = ({
               </React.Fragment>
             ))}
           </div>
-          <SignupButton />
-          <LoginButton />
+          <div className="flex items-center gap-2">
+            <SignupButton />
+            <LoginButton />
+          </div>
         </SheetHeader>
       </SheetContent>
     </Sheet>
