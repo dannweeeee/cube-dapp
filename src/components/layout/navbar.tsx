@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { navItems } from "@/lib/constants";
-import ConnectButton from "./connect-button";
-import MobileNav from "./mobile-navbar";
+import NavMobile from "./navbar-mobile";
 import Image from "next/image";
 import React from "react";
 import { usePathname } from "next/navigation";
 import { ScanQrCode, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
+import LoginButton from "../ui/smart-wallet/login-button";
+import SignupButton from "../ui/smart-wallet/signup-button";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -53,7 +54,7 @@ const Navbar = () => {
           <div className="flex items-center justify-center px-4">
             <Link href="/">
               <Image
-                src="/logos/svg/cube-blue.svg"
+                src="/assets/svg/cube-blue.svg"
                 alt="cube-logo"
                 width={40}
                 height={40}
@@ -62,10 +63,11 @@ const Navbar = () => {
             </Link>
           </div>
           <div className="flex-1 justify-end items-center hidden md:!flex gap-2">
-            <ConnectButton />
+            <SignupButton />
+            <LoginButton />
           </div>
           <div className="block md:hidden ml-8">
-            <MobileNav navItems={navItems} />
+            <NavMobile navItems={navItems} />
           </div>
         </nav>
       </header>

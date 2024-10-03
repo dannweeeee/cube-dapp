@@ -8,13 +8,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { AlignRight, ScanQrCode, Send } from "lucide-react";
-import ConnectButton from "./connect-button";
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
 import { usePathname } from "next/navigation";
+import LoginButton from "../ui/smart-wallet/login-button";
+import SignupButton from "../ui/smart-wallet/signup-button";
 
-const MobileNav = ({
+const NavMobile = ({
   navItems,
 }: {
   navItems: Array<{ href: string; name: React.ReactNode }>;
@@ -35,7 +36,7 @@ const MobileNav = ({
             <div className="flex items-center gap-3">
               <Link href="/">
                 <Image
-                  src="/logos/svg/cube-blue.svg"
+                  src="/assets/svg/cube-blue.svg"
                   alt="cube-logo"
                   width={30}
                   height={30}
@@ -67,11 +68,12 @@ const MobileNav = ({
               </React.Fragment>
             ))}
           </div>
-          <ConnectButton />
+          <SignupButton />
+          <LoginButton />
         </SheetHeader>
       </SheetContent>
     </Sheet>
   );
 };
 
-export default MobileNav;
+export default NavMobile;
