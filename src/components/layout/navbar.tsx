@@ -11,10 +11,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import LoginButton from "../ui/smart-wallet/login-button";
 import SignupButton from "../ui/smart-wallet/signup-button";
+import { useAccount } from "wagmi";
 
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const { address } = useAccount();
 
   return (
     <>
@@ -32,7 +34,7 @@ const Navbar = () => {
                       onClick={() => router.push(navItem.href)}
                       className={`relative ${
                         pathname === navItem.href ? "bg-blue-100/50" : ""
-                      } hover:bg-blue/20 transition-colors duration-200`}
+                      } hover:bg-blue/20 transition-colors h-[50px] w-[90px] text-md`}
                     >
                       <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
                         {navItem.name === "Pay" ? (
@@ -56,15 +58,15 @@ const Navbar = () => {
               <Image
                 src="/assets/svg/cube-blue.svg"
                 alt="cube-logo"
-                width={40}
-                height={40}
+                width={50}
+                height={50}
                 className="hover:opacity-80 transition-opacity duration-300"
               />
             </Link>
           </div>
           <div className="flex-1 justify-end items-center hidden md:!flex gap-2">
             <SignupButton />
-            <LoginButton />
+            {!address && <LoginButton />}
           </div>
           <div className="block md:hidden ml-8">
             <NavMobile navItems={navItems} />
