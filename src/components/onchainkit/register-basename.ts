@@ -1,9 +1,33 @@
 import { Coinbase, Wallet } from "@coinbase/coinbase-sdk";
 import { encodeFunctionData, namehash, Address } from "viem";
 import { normalize } from "viem/ens";
-import { BASE_SEPOLIA_L2_RESOLVER_ADDRESS } from "@/lib/constants";
+import {
+  BASE_SEPOLIA_L2_RESOLVER_ADDRESS,
+  BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
+} from "@/lib/constants";
 import L2ResolverAbi from "@/abis/L2ResolverAbi";
 import RegistrarAbi from "@/abis/RegistrarAbi";
+import { createPublicClient, http } from "viem";
+import { baseSepolia } from "viem/chains";
+
+// Check if the base name is already registered
+export async function isBaseNameRegistered(baseName: string) {
+  const baseSepoliaClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const isAvailable = await baseSepoliaClient.readContract({
+    address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
+    abi: RegistrarAbi,
+    functionName: "available",
+    args: [baseName],
+  });
+
+  console.log(`Base name ${baseName} is available: `, isAvailable);
+
+  return isAvailable;
+}
 
 // Create register contract method arguments
 export function createRegisterContractMethodArgs(
