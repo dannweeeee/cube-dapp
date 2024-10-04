@@ -36,7 +36,7 @@ const Navbar = () => {
                         pathname === navItem.href
                           ? "bg-blue-100/50"
                           : "bg-blue-100/30 "
-                      } hover:bg-blue-100/15  transition-colors h-[50px] w-[90px] text-sm`}
+                      } hover:bg-blue-100/15  transition-colors h-[48px] w-[90px] text-sm`}
                     >
                       <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
                         {navItem.name === "Pay" ? (
@@ -67,6 +67,7 @@ const Navbar = () => {
             </Link>
           </div>
           <div className="flex-1 justify-end items-center hidden md:!flex gap-2">
+            {" "}
             <SignupButton />
             {!address && <LoginButton />}
           </div>

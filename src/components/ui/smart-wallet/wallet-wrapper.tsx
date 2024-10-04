@@ -16,6 +16,7 @@ import {
 } from "@coinbase/onchainkit/wallet";
 import { useAccount } from "wagmi";
 import { generateOnRampURL } from "@coinbase/cbpay-js";
+import Image from "next/image";
 
 type WalletWrapperParams = {
   text?: string;
@@ -48,8 +49,14 @@ export default function WalletWrapper({
           text={text}
           className={className}
         >
-          <Avatar className="h-6 w-6" />
-          <Name />
+          <Image
+            src={`https://api.multiavatar.com/${address}.png`}
+            alt="profile-image"
+            className="rounded-full"
+            width={28}
+            height={28}
+          />
+          <Name className="text-sm" />
         </ConnectWallet>
         <WalletDropdown>
           <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick={true}>
