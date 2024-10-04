@@ -9,13 +9,13 @@ import {
 import { useMemo } from "react";
 import { http, createConfig } from "wagmi";
 import { base, baseSepolia } from "wagmi/chains";
-import { NEXT_PUBLIC_WC_PROJECT_ID } from "./config";
+import { WC_PROJECT_ID } from "./config";
 
 export function useWagmiConfig() {
-  const projectId = NEXT_PUBLIC_WC_PROJECT_ID ?? "";
+  const projectId = WC_PROJECT_ID ?? "";
   if (!projectId) {
     const providerErrMessage =
-      "To connect to all Wallets you need to provide a NEXT_PUBLIC_WC_PROJECT_ID env variable";
+      "To connect to all Wallets you need to provide a WC_PROJECT_ID env variable";
     throw new Error(providerErrMessage);
   }
 

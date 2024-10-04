@@ -28,6 +28,7 @@ export default function WalletWrapper({
   withWalletAggregator = false,
 }: WalletWrapperParams) {
   const { address } = useAccount();
+
   const onRampURL = generateOnRampURL({
     appId: process.env.NEXT_PUBLIC_CDP_PROJECT_ID,
     destinationWallets: [

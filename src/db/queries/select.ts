@@ -22,9 +22,6 @@ export async function getUserByWalletAddress(
     email: string;
     first_name: string;
     last_name: string;
-    country_code: string;
-    phone_number: string;
-    is_merchant: boolean;
     created_at: Date;
     updated_at: Date;
   }>

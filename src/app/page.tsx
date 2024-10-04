@@ -6,5 +6,9 @@ import { useAccount } from "wagmi";
 
 export default function Home() {
   const { isConnected } = useAccount();
-  return <div>{isConnected ? <Profile /> : <Hero />}</div>;
+  return (
+    <div className="flex items-center justify-center h-screen">
+      {isConnected ? <Profile /> : <Hero />}
+    </div>
+  );
 }

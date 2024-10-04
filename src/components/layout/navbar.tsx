@@ -20,7 +20,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 isolate z-10 bg-contrast/50 backdrop-filter backdrop-blur-xl shadow-sm">
+      <header className="fixed top-0 left-0 right-0 isolate z-10 bg-contrast/50 backdrop-filter backdrop-blur-xl shadow-sm bg-white/50">
         <nav
           aria-label="Desktop navigation"
           className="mx-auto flex container items-center justify-between p-6 lg:!px-8 !py-4"
@@ -33,8 +33,10 @@ const Navbar = () => {
                     <Button
                       onClick={() => router.push(navItem.href)}
                       className={`relative ${
-                        pathname === navItem.href ? "bg-blue-100/50" : ""
-                      } hover:bg-blue/20 transition-colors h-[50px] w-[90px] text-md`}
+                        pathname === navItem.href
+                          ? "bg-blue-100/50"
+                          : "bg-blue-100/30 "
+                      } hover:bg-blue-100/15  transition-colors h-[50px] w-[90px] text-sm`}
                     >
                       <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
                         {navItem.name === "Pay" ? (
