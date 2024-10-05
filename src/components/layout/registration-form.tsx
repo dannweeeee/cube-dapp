@@ -4,16 +4,52 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { isBaseNameRegistered } from "../onchainkit/register-basename";
+import {
+  createRegisterContractMethodArgs,
+  isBaseNameRegistered,
+} from "../onchainkit/register-basename";
+import {
+  useAccount,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import { BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS } from "@/lib/constants";
+import RegistrarAbi from "@/abis/RegistrarAbi";
 
 export function RegistrationForm() {
   const [baseName, setBaseName] = React.useState("");
   const [baseNameAvailable, setBaseNameAvailable] = React.useState(false);
+  const { address } = useAccount();
+  const { data: hash, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Registration form submitted");
+    const registrationArgs = createRegisterContractMethodArgs(
+      baseName,
+      address as `0x${string}`
+    );
+    writeContract({
+      address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
+      abi: RegistrarAbi,
+      functionName: "register",
+      args: [
+        {
+          name: registrationArgs.request[0] as string,
+          owner: registrationArgs.request[1] as `0x${string}`,
+          duration: BigInt(registrationArgs.request[2] as string),
+          resolver: registrationArgs.request[3] as `0x${string}`,
+          data: registrationArgs.request[4] as readonly `0x${string}`[],
+          reverseRecord: registrationArgs.request[5] as boolean,
+        },
+      ],
+    });
   };
+
+  console.log("HASH", hash);
 
   const checkBaseNameAvailability = async (
     e: React.ChangeEvent<HTMLInputElement>
