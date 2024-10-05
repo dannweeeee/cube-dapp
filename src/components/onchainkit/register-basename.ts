@@ -7,17 +7,11 @@ import {
 } from "@/lib/constants";
 import L2ResolverAbi from "@/abis/L2ResolverAbi";
 import RegistrarAbi from "@/abis/RegistrarAbi";
-import { createPublicClient, http } from "viem";
-import { baseSepolia } from "viem/chains";
+import { baseSepoliaPublicClient } from "@/lib/config";
 
 // Check if the base name is already registered
 export async function isBaseNameRegistered(baseName: string) {
-  const baseSepoliaClient = createPublicClient({
-    chain: baseSepolia,
-    transport: http(),
-  });
-
-  const isAvailable = await baseSepoliaClient.readContract({
+  const isAvailable = await baseSepoliaPublicClient.readContract({
     address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
     abi: RegistrarAbi,
     functionName: "available",
@@ -62,6 +56,7 @@ export function createRegisterContractMethodArgs(
 }
 
 // Handle registering a base name
+
 export async function registerBaseName(
   wallet: Wallet,
   registerArgs: { request: (string | boolean | `0x${string}`[])[] }
