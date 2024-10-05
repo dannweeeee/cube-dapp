@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrations:generate": "drizzle-kit generate",
-    "migrations:drop": "drizzle-kit drop",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:drop": "drizzle-kit drop",
     "db:push": "drizzle-kit push",
     "studio": "drizzle-kit studio"
   },
