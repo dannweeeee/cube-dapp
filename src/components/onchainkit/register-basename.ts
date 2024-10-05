@@ -1,4 +1,3 @@
-import { Coinbase, Wallet } from "@coinbase/coinbase-sdk";
 import { encodeFunctionData, namehash, Address } from "viem";
 import { normalize } from "viem/ens";
 import {
@@ -6,14 +5,16 @@ import {
   BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
 } from "@/lib/constants";
 import L2ResolverAbi from "@/abis/L2ResolverAbi";
-import RegistrarAbi from "@/abis/RegistrarAbi";
-import { baseSepoliaPublicClient } from "@/lib/config";
+import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
+import { baseSepoliaPublicClient, baseSepoliaWalletClient } from "@/lib/config";
+import { RegistrationArgs } from "@/lib/types";
+import { privateKeyToAccount } from "viem/accounts";
 
 // Check if the base name is already registered
 export async function isBaseNameRegistered(baseName: string) {
   const isAvailable = await baseSepoliaPublicClient.readContract({
     address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
-    abi: RegistrarAbi,
+    abi: RegistrarControllerAbi,
     functionName: "available",
     args: [baseName],
   });
@@ -27,7 +28,7 @@ export async function isBaseNameRegistered(baseName: string) {
 export function createRegisterContractMethodArgs(
   baseName: string,
   addressId: Address
-) {
+): RegistrationArgs {
   const addressData = encodeFunctionData({
     abi: L2ResolverAbi,
     functionName: "setAddr",
@@ -39,15 +40,13 @@ export function createRegisterContractMethodArgs(
     args: [namehash(normalize(baseName)), baseName],
   });
 
-  const registerArgs = {
-    request: [
-      baseName.replace(/\.base\.eth$/, ""),
-      addressId,
-      "31557600",
-      BASE_SEPOLIA_L2_RESOLVER_ADDRESS,
-      [addressData, nameData],
-      true,
-    ],
+  const registerArgs: RegistrationArgs = {
+    name: baseName,
+    owner: addressId,
+    duration: BigInt(31557600),
+    resolver: BASE_SEPOLIA_L2_RESOLVER_ADDRESS,
+    data: [addressData, nameData],
+    reverseRecord: true,
   };
 
   console.log(`Register contract method arguments constructed: `, registerArgs);
@@ -56,28 +55,33 @@ export function createRegisterContractMethodArgs(
 }
 
 // Handle registering a base name
+export async function registerBaseName(baseName: string, address: Address) {
+  const registrationArgs = createRegisterContractMethodArgs(baseName, address);
 
-export async function registerBaseName(
-  wallet: Wallet,
-  registerArgs: { request: (string | boolean | `0x${string}`[])[] }
-) {
-  try {
-    const contractInvocation = await wallet.invokeContract({
-      contractAddress: BASE_SEPOLIA_L2_RESOLVER_ADDRESS,
-      method: "register",
-      abi: RegistrarAbi,
-      args: registerArgs,
-      amount: 0.002,
-      assetId: Coinbase.assets.Eth,
-    });
+  const { request } = await baseSepoliaPublicClient.simulateContract({
+    address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
+    abi: RegistrarControllerAbi,
+    functionName: "register",
+    args: [
+      {
+        name: registrationArgs.name,
+        owner: registrationArgs.owner,
+        duration: registrationArgs.duration,
+        resolver: registrationArgs.resolver,
+        data: registrationArgs.data,
+        reverseRecord: registrationArgs.reverseRecord,
+      },
+    ],
+    value: BigInt(200000000000000000), // 0.002 ETH in wei
+  });
 
-    await contractInvocation.wait();
+  const account = privateKeyToAccount(address);
 
-    console.log(
-      `Successfully registered Basename ${registerArgs.request[0]} for wallet: `,
-      wallet
-    );
-  } catch (error) {
-    console.error(`Error registering a Basename for ${wallet}: `, error);
-  }
+  const hash = await baseSepoliaWalletClient.writeContract({
+    ...request,
+    account,
+    value: BigInt(200000000000000000), // 0.002 ETH in wei
+  });
+
+  console.log("TRANSACTION HASH", hash);
 }
