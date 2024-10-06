@@ -1,5 +1,5 @@
 import { encodeFunctionData, namehash, Address } from "viem";
-import { normalize } from "viem/ens";
+// import { normalize } from "viem/ens";
 import {
   BASE_SEPOLIA_L2_RESOLVER_ADDRESS,
   BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
@@ -9,6 +9,24 @@ import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
 import { baseSepoliaPublicClient, baseSepoliaWalletClient } from "@/lib/config";
 import { RegistrationArgs } from "@/lib/types";
 import { privateKeyToAccount } from "viem/accounts";
+import { baseSepolia, base } from "viem/chains";
+import { Basename } from "@coinbase/onchainkit/identity";
+
+// username domains
+export const USERNAME_DOMAINS: Record<number, string> = {
+  [baseSepolia.id]: "basetest.eth",
+  [base.id]: "base.eth",
+};
+
+// format base eth domain name
+export const formatBaseEthDomain = (
+  name: string,
+  chainId: number
+): Basename => {
+  return `${name}.${
+    USERNAME_DOMAINS[chainId] ?? ".base.eth"
+  }`.toLocaleLowerCase() as Basename;
+};
 
 // Check if the base name is already registered
 export async function isBaseNameRegistered(baseName: string) {
@@ -32,12 +50,16 @@ export function createRegisterContractMethodArgs(
   const addressData = encodeFunctionData({
     abi: L2ResolverAbi,
     functionName: "setAddr",
-    args: [namehash(normalize(baseName)), addressId],
+    args: [namehash(formatBaseEthDomain(baseName, baseSepolia.id)), addressId],
   });
+
   const nameData = encodeFunctionData({
     abi: L2ResolverAbi,
     functionName: "setName",
-    args: [namehash(normalize(baseName)), baseName],
+    args: [
+      namehash(formatBaseEthDomain(baseName, baseSepolia.id)),
+      formatBaseEthDomain(baseName, baseSepolia.id),
+    ],
   });
 
   const registerArgs: RegistrationArgs = {
@@ -75,7 +97,9 @@ export async function registerBaseName(baseName: string, address: Address) {
     value: BigInt(200000000000000000), // 0.002 ETH in wei
   });
 
-  const account = privateKeyToAccount(address);
+  const account = privateKeyToAccount(
+    `0x${process.env.NEXT_PUBLIC_PRIVATE_KEY}`
+  );
 
   const hash = await baseSepoliaWalletClient.writeContract({
     ...request,
