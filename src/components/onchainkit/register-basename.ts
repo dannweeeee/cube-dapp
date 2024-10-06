@@ -1,15 +1,16 @@
 import { encodeFunctionData, namehash, Address } from "viem";
-// import { normalize } from "viem/ens";
+import { baseSepolia, base } from "viem/chains";
+import { createPublicClient, http } from "viem";
+
 import {
   BASE_SEPOLIA_L2_RESOLVER_ADDRESS,
   BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
 } from "@/lib/constants";
 import L2ResolverAbi from "@/abis/L2ResolverAbi";
 import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
-import { baseSepoliaPublicClient, baseSepoliaWalletClient } from "@/lib/config";
+
 import { RegistrationArgs } from "@/lib/types";
-import { privateKeyToAccount } from "viem/accounts";
-import { baseSepolia, base } from "viem/chains";
+
 import { Basename } from "@coinbase/onchainkit/identity";
 
 // username domains
@@ -30,7 +31,12 @@ export const formatBaseEthDomain = (
 
 // Check if the base name is already registered
 export async function isBaseNameRegistered(baseName: string) {
-  const isAvailable = await baseSepoliaPublicClient.readContract({
+  const publicClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const isAvailable = await publicClient.readContract({
     address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
     abi: RegistrarControllerAbi,
     functionName: "available",
@@ -76,36 +82,24 @@ export function createRegisterContractMethodArgs(
   return registerArgs;
 }
 
-// Handle registering a base name
-export async function registerBaseName(baseName: string, address: Address) {
-  const registrationArgs = createRegisterContractMethodArgs(baseName, address);
+// Estimate registration price
+export async function estimateMintValue(
+  baseName: string,
+  duration: bigint
+): Promise<bigint> {
+  const publicClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(),
+  });
 
-  const { request } = await baseSepoliaPublicClient.simulateContract({
+  const price = await publicClient.readContract({
     address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
     abi: RegistrarControllerAbi,
-    functionName: "register",
-    args: [
-      {
-        name: registrationArgs.name,
-        owner: registrationArgs.owner,
-        duration: registrationArgs.duration,
-        resolver: registrationArgs.resolver,
-        data: registrationArgs.data,
-        reverseRecord: registrationArgs.reverseRecord,
-      },
-    ],
-    value: BigInt(200000000000000000), // 0.002 ETH in wei
+    functionName: "registerPrice",
+    args: [baseName, duration],
   });
 
-  const account = privateKeyToAccount(
-    `0x${process.env.NEXT_PUBLIC_PRIVATE_KEY}`
-  );
+  console.log(`Estimated mint value for ${baseName}: `, price);
 
-  const hash = await baseSepoliaWalletClient.writeContract({
-    ...request,
-    account,
-    value: BigInt(200000000000000000), // 0.002 ETH in wei
-  });
-
-  console.log("TRANSACTION HASH", hash);
+  return price;
 }

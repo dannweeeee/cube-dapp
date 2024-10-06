@@ -1,25 +1,68 @@
 "use client";
+
 import React from "react";
+
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
+
+import { cn } from "@/lib/utils";
+import { BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS } from "@/lib/constants";
+
 import {
+  createRegisterContractMethodArgs,
+  estimateMintValue,
   isBaseNameRegistered,
-  registerBaseName,
 } from "../onchainkit/register-basename";
-import { useAccount } from "wagmi";
+
+import {
+  useAccount,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+
+import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
 
 export function RegistrationForm() {
   const [baseName, setBaseName] = React.useState("");
   const [baseNameAvailable, setBaseNameAvailable] = React.useState(false);
   const { address } = useAccount();
+  const { data: hash, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (address && baseNameAvailable) {
       try {
-        await registerBaseName(baseName, address);
+        const registrationArgs = createRegisterContractMethodArgs(
+          baseName,
+          address
+        );
+
+        const estimatedValue = await estimateMintValue(
+          baseName,
+          registrationArgs.duration
+        );
+
+        writeContract({
+          address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
+          abi: RegistrarControllerAbi,
+          functionName: "register",
+          args: [
+            {
+              name: registrationArgs.name,
+              owner: registrationArgs.owner,
+              duration: registrationArgs.duration,
+              resolver: registrationArgs.resolver,
+              data: registrationArgs.data,
+              reverseRecord: registrationArgs.reverseRecord,
+            },
+          ],
+          value: estimatedValue,
+        });
       } catch (error) {
         console.error("Error registering base name:", error);
       }
@@ -69,6 +112,9 @@ export function RegistrationForm() {
             </span>
           </div>
         </LabelInputContainer>
+        {hash && <div>Transaction Hash: {hash}</div>}
+        {isConfirming && <div>Waiting for confirmation...</div>}
+        {isConfirmed && <div>Transaction confirmed.</div>}
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
           <Input id="email" placeholder="dann@gmail.com" type="email" />
