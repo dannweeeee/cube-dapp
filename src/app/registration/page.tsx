@@ -1,7 +1,7 @@
-import { RegistrationForm } from "@/components/layout/registration-form";
 import React from "react";
+import { RegistrationForm } from "@/components/layout/registration-form";
 
-const page = () => {
+const Registration = () => {
   return (
     <div className="flex items-center justify-center h-screen">
       <RegistrationForm />
@@ -9,4 +9,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Registration;

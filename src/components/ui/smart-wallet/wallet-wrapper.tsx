@@ -34,7 +34,7 @@ export default function WalletWrapper({
     destinationWallets: [
       {
         address: address ?? "",
-        blockchains: ["ethereum"],
+        blockchains: ["base"],
         assets: ["ETH", "USDC"],
       },
     ],

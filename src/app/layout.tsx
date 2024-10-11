@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import NProgressBar from "@/components/ui/nprogress-bar";
 import Navbar from "@/components/layout/navbar";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Cube",
@@ -35,6 +36,7 @@ export default function RootLayout({
                 <Navbar />
                 {children}
               </AuroraBackground>
+              <Toaster />
             </main>
           </NProgressBar>
         </OnchainProviders>

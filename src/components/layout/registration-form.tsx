@@ -15,35 +15,59 @@ import {
   isBaseNameRegistered,
 } from "../onchainkit/register-basename";
 
-import {
-  useAccount,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 
 import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
 
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+
+const registrationFormSchema = z.object({
+  basename: z.string().min(4).max(20),
+  email: z.string().email(),
+  firstname: z.string().min(1).max(20),
+  lastname: z.string().min(1).max(20),
+});
+
+type RegistrationFormValues = z.infer<typeof registrationFormSchema>;
+
 export function RegistrationForm() {
-  const [baseName, setBaseName] = React.useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegistrationFormValues>({
+    resolver: zodResolver(registrationFormSchema),
+    defaultValues: {
+      basename: "",
+      email: "",
+      firstname: "",
+      lastname: "",
+    },
+  });
+
+  const [haveInput, setHaveInput] = React.useState(false);
   const [baseNameAvailable, setBaseNameAvailable] = React.useState(false);
+
+  const router = useRouter();
+  const { toast } = useToast();
   const { address } = useAccount();
   const { data: hash, writeContract } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash,
-    });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: RegistrationFormValues) => {
     if (address && baseNameAvailable) {
       try {
+        console.log("DATA", data);
         const registrationArgs = createRegisterContractMethodArgs(
-          baseName,
+          data.basename,
           address
         );
 
         const estimatedValue = await estimateMintValue(
-          baseName,
+          data.basename,
           registrationArgs.duration
         );
 
@@ -63,8 +87,66 @@ export function RegistrationForm() {
           ],
           value: estimatedValue,
         });
+
+        console.log("TRANSACTION HASH", hash);
+
+        const response = await fetch("/api/create-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            wallet_address: address,
+            username: data.basename,
+            email: data.email,
+            first_name: data.firstname,
+            last_name: data.lastname,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          let errorMessage =
+            "There was a problem with your request. Please try again.";
+
+          if (
+            errorData.error &&
+            errorData.error.includes("duplicate key value")
+          ) {
+            if (errorData.error.includes("wallet_address")) {
+              errorMessage = "This wallet address is already registered.";
+            } else if (errorData.error.includes("username")) {
+              errorMessage = "This username is already taken.";
+            } else if (errorData.error.includes("email")) {
+              errorMessage = "This email is already in use.";
+            }
+          }
+
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong ser.",
+            description: errorMessage,
+          });
+          throw new Error(errorMessage);
+        } else {
+          console.log("User registered successfully");
+          toast({
+            variant: "default",
+            title: "Success!",
+            description: "User registered successfully.",
+          });
+          router.push("/");
+        }
       } catch (error) {
         console.error("Error registering base name:", error);
+        toast({
+          variant: "destructive",
+          title: "Registration Error",
+          description:
+            error instanceof Error
+              ? error.message
+              : "An unexpected error occurred.",
+        });
       }
     }
   };
@@ -77,7 +159,6 @@ export function RegistrationForm() {
       const isAvailable = await isBaseNameRegistered(name);
       console.log(`Base name ${name} is available: `, isAvailable);
       setBaseNameAvailable(isAvailable);
-      setBaseName(name);
     } catch (error) {
       console.error("Error checking base name availability:", error);
     }
@@ -92,7 +173,7 @@ export function RegistrationForm() {
         Create a Cube account on BASE to get started
       </p>
 
-      <form className="my-8" onSubmit={handleSubmit}>
+      <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="basename">Base Name</Label>
           <div className="relative">
@@ -101,32 +182,61 @@ export function RegistrationForm() {
               placeholder="dann"
               type="text"
               className="pr-20"
-              onChange={checkBaseNameAvailability}
+              {...register("basename")}
+              onChange={(e) => {
+                register("basename").onChange(e);
+                setHaveInput(true);
+                checkBaseNameAvailability(e);
+              }}
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs sm:text-sm">
-              {baseName
-                ? baseNameAvailable
-                  ? `🥳 ${baseName}.base.eth is available`
-                  : `😭 ${baseName}.base.eth is taken`
-                : ""}
-            </span>
+            {haveInput && (
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs sm:text-sm">
+                {errors.basename?.message ||
+                  (baseNameAvailable ? `✅ available` : `❌ taken`)}
+              </span>
+            )}
           </div>
         </LabelInputContainer>
-        {hash && <div>Transaction Hash: {hash}</div>}
-        {isConfirming && <div>Waiting for confirmation...</div>}
-        {isConfirmed && <div>Transaction confirmed.</div>}
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="dann@gmail.com" type="email" />
+          <Input
+            id="email"
+            placeholder="dann@gmail.com"
+            type="email"
+            {...register("email")}
+          />
+          {errors.email && (
+            <span className="text-red-500 text-sm">{errors.email.message}</span>
+          )}
         </LabelInputContainer>
         <div className="flex flex-col space-y-4 mb-4">
           <LabelInputContainer>
             <Label htmlFor="firstname">First Name</Label>
-            <Input id="firstname" placeholder="Dann" type="text" />
+            <Input
+              id="firstname"
+              placeholder="Dann"
+              type="text"
+              {...register("firstname")}
+            />
+            {errors.firstname && (
+              <span className="text-red-500 text-sm">
+                {errors.firstname.message}
+              </span>
+            )}
           </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="lastname">Last Name</Label>
-            <Input id="lastname" placeholder="Wee" type="text" />
+            <Input
+              id="lastname"
+              placeholder="Wee"
+              type="text"
+              {...register("lastname")}
+            />
+            {errors.lastname && (
+              <span className="text-red-500 text-sm">
+                {errors.lastname.message}
+              </span>
+            )}
           </LabelInputContainer>
         </div>
 
