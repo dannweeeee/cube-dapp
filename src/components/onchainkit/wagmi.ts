@@ -9,10 +9,9 @@ import {
 import { useMemo } from "react";
 import { http, createConfig } from "wagmi";
 import { baseSepolia, base } from "wagmi/chains";
-import { WC_PROJECT_ID } from "./config";
 
 export function useWagmiConfig() {
-  const projectId = WC_PROJECT_ID ?? "";
+  const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
   if (!projectId) {
     const providerErrMessage =
       "To connect to all Wallets you need to provide a WC_PROJECT_ID env variable";
