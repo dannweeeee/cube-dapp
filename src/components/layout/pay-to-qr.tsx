@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import axios from "axios";
 
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Switch } from "../ui/switch";
 
 import { cn } from "@/lib/utils";
 
@@ -19,33 +17,34 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 import { useFetchUserByAddress } from "@/hooks/useFetchUserByAddress";
-import { registerMerchant } from "../scripts/registry";
 
 import QRScanner from "@/components/layout/qr-scanner";
-import { ScanQrCode } from "lucide-react";
+import { ScanQrCode, Send } from "lucide-react";
+import { PayConfirmation } from "../ui/payment/pay-confirmation";
 
-const merchantRegistrationFormSchema = z.object({
+const paymentFormSchema = z.object({
   uen: z.string().min(4).max(50),
-  merchantname: z.string().min(4).max(100),
-  vault: z.boolean(),
+  amount: z.number().min(0),
 });
 
-type RegistrationFormValues = z.infer<typeof merchantRegistrationFormSchema>;
+type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
 export function PayToQRForm() {
-  const [scanData, setScanData] = useState<boolean>(false);
+  const [scanData, setScanData] = useState<boolean>(true);
+  const [uen, setUen] = useState<string>("");
+  const [amount, setAmount] = useState<number>(0);
+  const [isPayConfirmationOpen, setIsPayConfirmationOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<RegistrationFormValues>({
-    resolver: zodResolver(merchantRegistrationFormSchema),
+  } = useForm<PaymentFormValues>({
+    resolver: zodResolver(paymentFormSchema),
     defaultValues: {
       uen: "",
-      merchantname: "",
-      vault: false,
+      amount: 0,
     },
   });
 
@@ -116,65 +115,18 @@ export function PayToQRForm() {
     }
   };
 
-  const onSubmit = async (data: RegistrationFormValues) => {
+  const onSubmit = async (data: PaymentFormValues) => {
     if (address && user) {
       try {
         console.log("DATA", data);
-
-        const hash = await registerMerchant(
-          data.uen,
-          data.merchantname,
-          user.username,
-          address
-        );
-
-        if (hash) {
-          console.log("TRANSACTION HASH", hash);
-          try {
-            const response = await axios.post("/api/create-merchant", {
-              uen: data.uen,
-              merchant_name: data.merchantname,
-              username: user.username,
-              merchant_wallet_address: address,
-              use_vault: data.vault,
-            });
-
-            console.log("Merchant registered successfully", response);
-            toast({
-              variant: "default",
-              title: "Success!",
-              description: "Merchant registered successfully.",
-            });
-          } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-              const errorData = error.response.data;
-              let errorMessage =
-                "There was a problem with your request. Please try again.";
-
-              if (
-                errorData.error &&
-                errorData.error.includes("duplicate key value")
-              ) {
-                if (errorData.error.includes("uen")) {
-                  errorMessage = "This UEN is already registered.";
-                }
-              }
-
-              toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong ser.",
-                description: errorMessage,
-              });
-              throw new Error(errorMessage);
-            }
-          }
-        }
-        router.push("/merchant");
+        setUen(data.uen);
+        setAmount(data.amount);
+        setIsPayConfirmationOpen(true);
       } catch (error) {
-        console.error("Error registering merchant:", error);
+        console.error("Error paying merchant:", error);
         toast({
           variant: "destructive",
-          title: "Registration Error",
+          title: "Payment Error",
           description:
             error instanceof Error
               ? error.message
@@ -196,7 +148,7 @@ export function PayToQRForm() {
         <>
           <div className="text-center">
             <h2 className="font-bold text-2xl text-neutral-800 dark:text-neutral-200 mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
-              Scan QR Code
+              Scan QR Code to Auto-Fill
             </h2>
             <p className="text-neutral-600 text-sm max-w-sm mx-auto mb-6 dark:text-neutral-300 italic">
               Align camera with QR code to pay in <strong>Singapore</strong>,{" "}
@@ -205,8 +157,16 @@ export function PayToQRForm() {
               <strong>SGQR-supported</strong> countries worldwide.
             </p>
           </div>
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center justify-center">
             <QRScanner onScan={handleScan} />
+            <Button
+              className="mt-5 relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-1/3 rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              onClick={() => {
+                router.push("/");
+              }}
+            >
+              Cancel
+            </Button>
           </div>
         </>
       ) : (
@@ -224,10 +184,11 @@ export function PayToQRForm() {
               <div className="relative flex w-full">
                 <Input
                   id="uen"
-                  placeholder="00022100K"
                   type="text"
+                  placeholder="...merchant UEN"
                   {...register("uen")}
                   className="pr-40"
+                  disabled={!scanData}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center">
                   <Button
@@ -247,37 +208,53 @@ export function PayToQRForm() {
               )}
             </LabelInputContainer>
             <LabelInputContainer className="mb-4">
-              <Label htmlFor="merchantname">Merchant Name</Label>
+              <Label htmlFor="amount">Amount in SGD</Label>
               <Input
-                id="merchantname"
-                placeholder="333 Carrot Cake"
+                id="amount"
+                placeholder="Please enter the amount"
                 type="text"
-                {...register("merchantname")}
+                inputMode="decimal"
+                pattern="^\d*\.?\d{0,2}$"
+                min="0"
+                step="0.01"
+                onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
+                  const target = event.target as HTMLInputElement;
+                  if (
+                    !/[0-9.]/.test(event.key) ||
+                    (event.key === "." && target.value.includes(".")) ||
+                    (target.value.includes(".") &&
+                      target.value.split(".")[1].length >= 2)
+                  ) {
+                    event.preventDefault();
+                  }
+                }}
+                style={{ WebkitAppearance: "none", MozAppearance: "textfield" }}
+                {...register("amount", {
+                  setValueAs: (v) => (v === "" ? undefined : parseFloat(v)),
+                })}
               />
-              {errors.merchantname && (
+              {errors.amount && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.merchantname.message}
+                  {errors.amount.message}
                 </p>
               )}
             </LabelInputContainer>
-            <div className="flex flex-col space-y-4 mb-4">
-              <LabelInputContainer>
-                <Label htmlFor="vault">
-                  Would you like to use Cube vault feature?
-                </Label>
-                <Switch id="vault" {...register("vault")} className="" />
-              </LabelInputContainer>
-            </div>
 
             <Button
               className="relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
               type="submit"
             >
-              Register &rarr;
+              Pay Now <Send className="w-4 h-4 ml-1" />
             </Button>
           </form>
         </>
       )}
+      <PayConfirmation
+        uen={uen}
+        amount={amount}
+        isOpen={isPayConfirmationOpen}
+        onOpenChange={setIsPayConfirmationOpen}
+      />
     </div>
   );
 }
