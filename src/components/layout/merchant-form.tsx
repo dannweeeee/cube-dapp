@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
 import { Label } from "../ui/label";
@@ -21,6 +21,9 @@ import { useToast } from "@/hooks/useToast";
 import { useFetchUserByAddress } from "@/hooks/useFetchUserByAddress";
 import { registerMerchant } from "../scripts/registry";
 
+import QRScanner from "@/components/layout/qr-scanner";
+import { ScanQrCode } from "lucide-react";
+
 const merchantRegistrationFormSchema = z.object({
   uen: z.string().min(4).max(50),
   merchantname: z.string().min(4).max(100),
@@ -30,9 +33,12 @@ const merchantRegistrationFormSchema = z.object({
 type RegistrationFormValues = z.infer<typeof merchantRegistrationFormSchema>;
 
 export function MerchantRegistrationForm() {
+  const [scanData, setScanData] = useState<boolean>(false);
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<RegistrationFormValues>({
     resolver: zodResolver(merchantRegistrationFormSchema),
@@ -48,6 +54,65 @@ export function MerchantRegistrationForm() {
   const { address } = useAccount();
 
   const { user } = useFetchUserByAddress(address || null);
+
+  const handleScan = (data: string) => {
+    function isLetter(char: string) {
+      return char.length === 1 && char.match(/[a-z]/i);
+    }
+
+    if (data) {
+      console.log("Scanned QR code:", data);
+
+      // Pattern for PromptPay QR codes
+      const promptPayPattern =
+        /^00020101021130\d{2}0016A00000067701011201(\d{13}|\d{15}).*?5802TH/;
+
+      // Existing patterns
+      const paynowPattern = /PAYNOW01012021[023]([A-Za-z0-9]{10})/;
+      const netsPattern = /SG\.COM\.NETS0123([0-9]{9}[A-Z])/;
+
+      const promptPayMatch = data.match(promptPayPattern);
+      const paynowMatch = data.match(paynowPattern);
+      const netsMatch = data.match(netsPattern);
+
+      let uenValue = "";
+
+      if (promptPayMatch) {
+        uenValue = promptPayMatch[1];
+        console.log("Parsed QR Data (PromptPay):", uenValue);
+      } else if (paynowMatch) {
+        // PayNow QR code logic
+        const eighthChar = paynowMatch[1][paynowMatch[1].length - 2];
+
+        if (isLetter(eighthChar)) {
+          uenValue = paynowMatch[1].slice(0, -1);
+          console.log("Parsed QR Data (PayNow 9-character UEN):", uenValue);
+        } else {
+          uenValue = paynowMatch[1];
+          console.log("Parsed QR Data (PayNow 10-character UEN):", uenValue);
+        }
+      } else if (netsMatch) {
+        // NETS QR code logic
+        uenValue = netsMatch[1];
+        console.log("Parsed QR Data (NETS UEN):", uenValue);
+      } else {
+        // If no match found, try to find any 9-digit number followed by a letter
+        const genericUenPattern = /([0-9]{9}[A-Z])/;
+        const genericMatch = data.match(genericUenPattern);
+
+        if (genericMatch) {
+          uenValue = genericMatch[1];
+          console.log("Parsed QR Data (Generic UEN):", uenValue);
+        } else {
+          console.log("Unrecognized QR format. Full QR Data:", data);
+          uenValue = data;
+        }
+      }
+
+      setValue("uen", uenValue);
+      setScanData(false);
+    }
+  };
 
   const onSubmit = async (data: RegistrationFormValues) => {
     if (address && user) {
@@ -125,59 +190,77 @@ export function MerchantRegistrationForm() {
 
   return (
     <div className="w-full max-w-md mx-auto p-4 md:p-8 rounded-none md:rounded-2xl shadow-input bg-transparent dark:bg-black">
-      <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Join Cube&apos;s Merchant Network
-      </h2>
-      <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-        Register your Merchant UEN with Cube on BASE (Sepolia).
-      </p>
+      {scanData ? (
+        <QRScanner onScan={handleScan} />
+      ) : (
+        <>
+          <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
+            Join Cube&apos;s Merchant Network
+          </h2>
+          <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
+            Register your Merchant UEN with Cube on BASE (Sepolia).
+          </p>
 
-      <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="uen">Merchant UEN</Label>
-          <div className="relative">
-            <Input
-              id="uen"
-              placeholder="00022100K"
-              type="text"
-              className="pr-20"
-              {...register("uen")}
-            />
-          </div>
-          {errors.uen && (
-            <p className="text-red-500 text-sm mt-1">{errors.uen.message}</p>
-          )}
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="merchantname">Merchant Name</Label>
-          <Input
-            id="merchantname"
-            placeholder="333 Carrot Cake"
-            type="text"
-            {...register("merchantname")}
-          />
-          {errors.merchantname && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.merchantname.message}
-            </p>
-          )}
-        </LabelInputContainer>
-        <div className="flex flex-col space-y-4 mb-4">
-          <LabelInputContainer>
-            <Label htmlFor="vault">
-              Would you like to use Cube vault feature?
-            </Label>
-            <Switch id="vault" {...register("vault")} className="" />
-          </LabelInputContainer>
-        </div>
+          <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="uen">Merchant UEN</Label>
+              <div className="relative flex w-full">
+                <Input
+                  id="uen"
+                  placeholder="00022100K"
+                  type="text"
+                  {...register("uen")}
+                  className="pr-40"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center">
+                  <Button
+                    className="relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-auto rounded-xl h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+                    onClick={() => {
+                      setScanData(true);
+                    }}
+                  >
+                    <ScanQrCode className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              {errors.uen && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.uen.message}
+                </p>
+              )}
+            </LabelInputContainer>
+            <LabelInputContainer className="mb-4">
+              <Label htmlFor="merchantname">Merchant Name</Label>
+              <Input
+                id="merchantname"
+                placeholder="333 Carrot Cake"
+                type="text"
+                {...register("merchantname")}
+              />
+              {errors.merchantname && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.merchantname.message}
+                </p>
+              )}
+            </LabelInputContainer>
+            <div className="flex flex-col space-y-4 mb-4">
+              <LabelInputContainer>
+                <Label htmlFor="vault">
+                  Would you like to use Cube vault feature?
+                </Label>
+                <Switch id="vault" {...register("vault")} className="" />
+              </LabelInputContainer>
+            </div>
 
-        <Button
-          className="relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-          type="submit"
-        >
-          Register &rarr;
-        </Button>
-      </form>
+            <Button
+              className="relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              type="submit"
+            >
+              Register &rarr;
+            </Button>
+          </form>
+        </>
+      )}
     </div>
   );
 }
