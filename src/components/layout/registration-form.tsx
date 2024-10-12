@@ -175,7 +175,7 @@ export function RegistrationForm() {
         Welcome to Cube
       </h2>
       <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-        Create a Cube account on BASE to get started
+        Create a Cube account on BASE (Sepolia) to get started.
       </p>
 
       <form className="my-8" onSubmit={handleSubmit(onSubmit)}>

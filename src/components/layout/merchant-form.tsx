@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
+import axios from "axios";
 
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Switch } from "../ui/switch";
 
 import { cn } from "@/lib/utils";
 
@@ -13,10 +15,10 @@ import { useAccount } from "wagmi";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 import { useFetchUserByAddress } from "@/hooks/useFetchUserByAddress";
-import { Switch } from "../ui/switch";
 
 const merchantRegistrationFormSchema = z.object({
   uen: z.string().min(4).max(50),
@@ -51,25 +53,30 @@ export function MerchantRegistrationForm() {
       try {
         console.log("DATA", data);
 
-        const response = await fetch("/api/create-merchant", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            uen: data.uen,
-            merchant_name: data.merchantname,
-            username: user.username,
-            merchant_wallet_address: address,
-            use_vault: data.vault,
-          }),
+        const response = await axios.post("/api/create-merchant", {
+          uen: data.uen,
+          merchant_name: data.merchantname,
+          username: user.username,
+          merchant_wallet_address: address,
+          use_vault: data.vault,
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          let errorMessage =
-            "There was a problem with your request. Please try again.";
+        console.log("RESPONSE", response);
 
+        console.log("Merchant registered successfully");
+        toast({
+          variant: "default",
+          title: "Success!",
+          description: "Merchant registered successfully.",
+        });
+        router.push("/merchant");
+      } catch (error) {
+        console.error("Error registering merchant:", error);
+        let errorMessage =
+          "There was a problem with your request. Please try again.";
+
+        if (axios.isAxiosError(error) && error.response) {
+          const errorData = error.response.data;
           if (
             errorData.error &&
             errorData.error.includes("duplicate key value")
@@ -83,31 +90,12 @@ export function MerchantRegistrationForm() {
                 "This wallet address is already registered as a merchant.";
             }
           }
-
-          toast({
-            variant: "destructive",
-            title: "Uh oh! Something went wrong ser.",
-            description: errorMessage,
-          });
-          throw new Error(errorMessage);
-        } else {
-          console.log("Merchant registered successfully");
-          toast({
-            variant: "default",
-            title: "Success!",
-            description: "Merchant registered successfully.",
-          });
-          router.push("/");
         }
-      } catch (error) {
-        console.error("Error registering merchant:", error);
+
         toast({
           variant: "destructive",
-          title: "Registration Error",
-          description:
-            error instanceof Error
-              ? error.message
-              : "An unexpected error occurred.",
+          title: "Uh oh! Something went wrong ser.",
+          description: errorMessage,
         });
       }
     } else {
@@ -125,8 +113,7 @@ export function MerchantRegistrationForm() {
         Join Cube&apos;s Merchant Network
       </h2>
       <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-        Register your Merchant UEN with Cube on BASE (Sepolia). It&apos;s just
-        that simple!
+        Register your Merchant UEN with Cube on BASE (Sepolia).
       </p>
 
       <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
