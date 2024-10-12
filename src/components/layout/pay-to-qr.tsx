@@ -32,7 +32,7 @@ const merchantRegistrationFormSchema = z.object({
 
 type RegistrationFormValues = z.infer<typeof merchantRegistrationFormSchema>;
 
-export function MerchantRegistrationForm() {
+export function PayToQRForm() {
   const [scanData, setScanData] = useState<boolean>(false);
 
   const {
@@ -196,22 +196,17 @@ export function MerchantRegistrationForm() {
         <>
           <div className="text-center">
             <h2 className="font-bold text-2xl text-neutral-800 dark:text-neutral-200 mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
-              Scan QR Code to Auto-Fill
+              Scan QR Code
             </h2>
             <p className="text-neutral-600 text-sm max-w-sm mx-auto mb-6 dark:text-neutral-300 italic">
-              Align camera with QR code to auto-fill UEN input.
+              Align camera with QR code to pay in <strong>Singapore</strong>,{" "}
+              <strong>China</strong>, <strong>Malaysia</strong>,
+              <strong>Thailand</strong> and other{" "}
+              <strong>SGQR-supported</strong> countries worldwide.
             </p>
           </div>
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex justify-center">
             <QRScanner onScan={handleScan} />
-            <Button
-              className="mt-5 relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-1/3 rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-              onClick={() => {
-                setScanData(false);
-              }}
-            >
-              Cancel
-            </Button>
           </div>
         </>
       ) : (

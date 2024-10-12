@@ -40,6 +40,7 @@
     "mini-svg-data-uri": "^1.4.4",
     "next": "14.2.14",
     "next-nprogress-bar": "^2.3.13",
+    "pino-pretty": "^11.2.2",
     "postgres": "^3.4.4",
     "qr-scanner": "^1.4.2",
     "react": "^18",
