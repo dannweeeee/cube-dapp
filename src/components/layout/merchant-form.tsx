@@ -61,9 +61,7 @@ export function MerchantRegistrationForm() {
           use_vault: data.vault,
         });
 
-        console.log("RESPONSE", response);
-
-        console.log("Merchant registered successfully");
+        console.log("Merchant registered successfully", response);
         toast({
           variant: "default",
           title: "Success!",

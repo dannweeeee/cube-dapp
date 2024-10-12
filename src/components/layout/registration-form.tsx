@@ -8,21 +8,10 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
 import { cn } from "@/lib/utils";
-import { BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS } from "@/lib/constants";
 
-import {
-  createRegisterContractMethodArgs,
-  estimateMintValue,
-  isBaseNameRegistered,
-} from "../onchainkit/register-basename";
+import { isBaseNameRegistered, registerBaseName } from "../scripts/basename";
 
-import {
-  useAccount,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from "wagmi";
-
-import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
+import { useAccount } from "wagmi";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,43 +49,15 @@ export function RegistrationForm() {
   const router = useRouter();
   const { toast } = useToast();
   const { address } = useAccount();
-  const { data: hash, writeContract } = useWriteContract();
-  const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
-  });
 
   const onSubmit = async (data: RegistrationFormValues) => {
     if (address && baseNameAvailable) {
       try {
         console.log("DATA", data);
-        const registrationArgs = createRegisterContractMethodArgs(
-          data.basename,
-          address
-        );
 
-        const estimatedValue = await estimateMintValue(
-          data.basename,
-          registrationArgs.duration
-        );
+        const hash = await registerBaseName(data.basename, address);
 
-        writeContract({
-          address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
-          abi: RegistrarControllerAbi,
-          functionName: "register",
-          args: [
-            {
-              name: registrationArgs.name,
-              owner: registrationArgs.owner,
-              duration: registrationArgs.duration,
-              resolver: registrationArgs.resolver,
-              data: registrationArgs.data,
-              reverseRecord: registrationArgs.reverseRecord,
-            },
-          ],
-          value: estimatedValue,
-        });
-
-        if (isConfirmed) {
+        if (hash) {
           console.log("TRANSACTION HASH", hash);
           try {
             const response = await axios.post("/api/create-user", {

@@ -1,6 +1,7 @@
 import { encodeFunctionData, namehash, Address } from "viem";
 import { baseSepolia, base } from "viem/chains";
-import { createPublicClient, http } from "viem";
+import { createPublicClient, createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 
 import {
   BASE_SEPOLIA_L2_RESOLVER_ADDRESS,
@@ -102,4 +103,53 @@ export async function estimateMintValue(
   console.log(`Estimated mint value for ${baseName}: `, price);
 
   return price;
+}
+
+// Register basename for user (TODO: paymaster logic for this feature)
+export async function registerBaseName(baseName: string, address: Address) {
+  const publicClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const walletClient = createWalletClient({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const registrationArgs = createRegisterContractMethodArgs(baseName, address);
+
+  const estimatedValue = await estimateMintValue(
+    baseName,
+    registrationArgs.duration
+  );
+
+  const { request } = await publicClient.simulateContract({
+    address: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
+    abi: RegistrarControllerAbi,
+    functionName: "register",
+    args: [
+      {
+        name: registrationArgs.name,
+        owner: registrationArgs.owner,
+        duration: registrationArgs.duration,
+        resolver: registrationArgs.resolver,
+        data: registrationArgs.data,
+        reverseRecord: registrationArgs.reverseRecord,
+      },
+    ],
+    value: estimatedValue,
+  });
+
+  const account = privateKeyToAccount(
+    `0x${process.env.NEXT_PUBLIC_PRIVATE_KEY}`
+  );
+
+  const hash = await walletClient.writeContract({
+    ...request,
+    account,
+  });
+  console.log("TRANSACTION HASH", hash);
+
+  return hash;
 }
