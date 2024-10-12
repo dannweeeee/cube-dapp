@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 import { useFetchUserByAddress } from "@/hooks/useFetchUserByAddress";
+import { registerMerchant } from "../scripts/registry";
 
 const merchantRegistrationFormSchema = z.object({
   uen: z.string().min(4).max(50),
@@ -53,47 +54,64 @@ export function MerchantRegistrationForm() {
       try {
         console.log("DATA", data);
 
-        const response = await axios.post("/api/create-merchant", {
-          uen: data.uen,
-          merchant_name: data.merchantname,
-          username: user.username,
-          merchant_wallet_address: address,
-          use_vault: data.vault,
-        });
+        const hash = await registerMerchant(
+          data.uen,
+          data.merchantname,
+          user.username,
+          address
+        );
 
-        console.log("Merchant registered successfully", response);
-        toast({
-          variant: "default",
-          title: "Success!",
-          description: "Merchant registered successfully.",
-        });
-        router.push("/merchant");
-      } catch (error) {
-        console.error("Error registering merchant:", error);
-        let errorMessage =
-          "There was a problem with your request. Please try again.";
+        if (hash) {
+          console.log("TRANSACTION HASH", hash);
+          try {
+            const response = await axios.post("/api/create-merchant", {
+              uen: data.uen,
+              merchant_name: data.merchantname,
+              username: user.username,
+              merchant_wallet_address: address,
+              use_vault: data.vault,
+            });
 
-        if (axios.isAxiosError(error) && error.response) {
-          const errorData = error.response.data;
-          if (
-            errorData.error &&
-            errorData.error.includes("duplicate key value")
-          ) {
-            if (errorData.error.includes("uen")) {
-              errorMessage = "This UEN is already registered.";
-            } else if (errorData.error.includes("username")) {
-              errorMessage = "This username is already taken.";
-            } else if (errorData.error.includes("merchant_wallet_address")) {
-              errorMessage =
-                "This wallet address is already registered as a merchant.";
+            console.log("Merchant registered successfully", response);
+            toast({
+              variant: "default",
+              title: "Success!",
+              description: "Merchant registered successfully.",
+            });
+          } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+              const errorData = error.response.data;
+              let errorMessage =
+                "There was a problem with your request. Please try again.";
+
+              if (
+                errorData.error &&
+                errorData.error.includes("duplicate key value")
+              ) {
+                if (errorData.error.includes("uen")) {
+                  errorMessage = "This UEN is already registered.";
+                }
+              }
+
+              toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong ser.",
+                description: errorMessage,
+              });
+              throw new Error(errorMessage);
             }
           }
         }
-
+        router.push("/merchant");
+      } catch (error) {
+        console.error("Error registering merchant:", error);
         toast({
           variant: "destructive",
-          title: "Uh oh! Something went wrong ser.",
-          description: errorMessage,
+          title: "Registration Error",
+          description:
+            error instanceof Error
+              ? error.message
+              : "An unexpected error occurred.",
         });
       }
     } else {

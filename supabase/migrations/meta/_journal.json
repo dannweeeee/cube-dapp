@@ -15,6 +15,13 @@
       "when": 1728720291414,
       "tag": "0001_chemical_inertia",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1728733591463,
+      "tag": "0002_zippy_infant_terrible",
+      "breakpoints": true
     }
   ]
 }

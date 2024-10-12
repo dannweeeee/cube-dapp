@@ -114,6 +114,12 @@ export function RegistrationForm() {
               : "An unexpected error occurred.",
         });
       }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Registration Error",
+        description: "User information or wallet address is missing.",
+      });
     }
   };
 

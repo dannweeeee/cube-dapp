@@ -1,6 +1,12 @@
-import { encodeFunctionData, namehash, Address } from "viem";
+import {
+  encodeFunctionData,
+  namehash,
+  Address,
+  createPublicClient,
+  createWalletClient,
+  http,
+} from "viem";
 import { baseSepolia, base } from "viem/chains";
-import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
 import {
