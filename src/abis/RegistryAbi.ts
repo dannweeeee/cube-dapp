@@ -102,7 +102,7 @@ export default [
         type: "address",
       },
     ],
-    name: "addMerchantBrandNew",
+    name: "addMerchant",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -120,7 +120,7 @@ export default [
         type: "string",
       },
     ],
-    name: "addMerchantByAdmin",
+    name: "addMerchantInBulk",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -235,7 +235,7 @@ export default [
         type: "address",
       },
     ],
-    name: "getMerchantByWalletAddress",
+    name: "getMerchantsByWalletAddress",
     outputs: [
       {
         components: [
@@ -260,9 +260,9 @@ export default [
             type: "address",
           },
         ],
-        internalType: "struct Registry.Merchant",
+        internalType: "struct Registry.Merchant[]",
         name: "",
-        type: "tuple",
+        type: "tuple[]",
       },
     ],
     stateMutability: "view",

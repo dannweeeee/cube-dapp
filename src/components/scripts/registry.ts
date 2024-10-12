@@ -24,7 +24,7 @@ export async function registerMerchant(
   const { request } = await publicClient.simulateContract({
     address: BASE_SEPOLIA_REGISTRY_ADDRESS,
     abi: RegistryAbi,
-    functionName: "addMerchantBrandNew",
+    functionName: "addMerchant",
     args: [uen, entityname, owner, address],
   });
 
