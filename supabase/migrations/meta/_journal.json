@@ -8,6 +8,13 @@
       "when": 1728114691854,
       "tag": "0000_skinny_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1728720291414,
+      "tag": "0001_chemical_inertia",
+      "breakpoints": true
     }
   ]
 }

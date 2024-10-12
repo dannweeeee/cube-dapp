@@ -6,7 +6,7 @@ import NavMobile from "./navbar-mobile";
 import Image from "next/image";
 import React from "react";
 import { usePathname } from "next/navigation";
-import { ScanQrCode, Send } from "lucide-react";
+import { Send, Store } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import LoginButton from "../ui/smart-wallet/login-button";
@@ -36,13 +36,13 @@ const Navbar = () => {
                         pathname === navItem.href
                           ? "bg-blue-100/50"
                           : "bg-blue-100/30 "
-                      } hover:bg-blue-100/15  transition-colors h-[48px] w-[90px] text-sm`}
+                      } hover:bg-blue-100/15  transition-colors h-[48px] w-auto text-sm`}
                     >
                       <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
                         {navItem.name === "Pay" ? (
                           <Send className="w-4 h-4" />
                         ) : (
-                          <ScanQrCode className="w-4 h-4" />
+                          <Store className="w-4 h-4" />
                         )}
                         {navItem.name}
                         {pathname === navItem.href && (

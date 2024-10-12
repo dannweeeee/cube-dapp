@@ -7,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { AlignRight, ScanQrCode, Send } from "lucide-react";
+import { AlignRight, Send, Store } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
@@ -55,14 +55,16 @@ const NavMobile = ({
                 <Button
                   onClick={() => router.push(navItem.href)}
                   className={`relative ${
-                    pathname === navItem.href ? "bg-blue-100/50" : ""
-                  } hover:bg-blue/20 transition-colors h-[50px] w-[90px] text-md`}
+                    pathname === navItem.href
+                      ? "bg-blue-100/50"
+                      : "bg-blue-100/30 "
+                  } hover:bg-blue-100/15  transition-colors h-[48px] w-auto text-sm`}
                 >
                   <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
                     {navItem.name === "Pay" ? (
                       <Send className="w-4 h-4" />
                     ) : (
-                      <ScanQrCode className="w-4 h-4" />
+                      <Store className="w-4 h-4" />
                     )}
                     {navItem.name}
                     {pathname === navItem.href && (

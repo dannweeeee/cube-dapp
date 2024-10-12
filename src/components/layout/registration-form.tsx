@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import axios from "axios";
 
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -15,7 +16,11 @@ import {
   isBaseNameRegistered,
 } from "../onchainkit/register-basename";
 
-import { useAccount, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 
 import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
 
@@ -23,7 +28,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
 const registrationFormSchema = z.object({
   basename: z.string().min(4).max(20),
@@ -56,6 +61,9 @@ export function RegistrationForm() {
   const { toast } = useToast();
   const { address } = useAccount();
   const { data: hash, writeContract } = useWriteContract();
+  const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   const onSubmit = async (data: RegistrationFormValues) => {
     if (address && baseNameAvailable) {
@@ -88,55 +96,52 @@ export function RegistrationForm() {
           value: estimatedValue,
         });
 
-        console.log("TRANSACTION HASH", hash);
+        if (isConfirmed) {
+          console.log("TRANSACTION HASH", hash);
+          try {
+            const response = await axios.post("/api/create-user", {
+              wallet_address: address,
+              username: data.basename,
+              email: data.email,
+              first_name: data.firstname,
+              last_name: data.lastname,
+            });
 
-        const response = await fetch("/api/create-user", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            wallet_address: address,
-            username: data.basename,
-            email: data.email,
-            first_name: data.firstname,
-            last_name: data.lastname,
-          }),
-        });
+            console.log("User registered successfully", response);
+            toast({
+              variant: "default",
+              title: "Success!",
+              description: "User registered successfully.",
+            });
+          } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+              const errorData = error.response.data;
+              let errorMessage =
+                "There was a problem with your request. Please try again.";
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          let errorMessage =
-            "There was a problem with your request. Please try again.";
+              if (
+                errorData.error &&
+                errorData.error.includes("duplicate key value")
+              ) {
+                if (errorData.error.includes("wallet_address")) {
+                  errorMessage = "This wallet address is already registered.";
+                } else if (errorData.error.includes("username")) {
+                  errorMessage = "This username is already taken.";
+                } else if (errorData.error.includes("email")) {
+                  errorMessage = "This email is already in use.";
+                }
+              }
 
-          if (
-            errorData.error &&
-            errorData.error.includes("duplicate key value")
-          ) {
-            if (errorData.error.includes("wallet_address")) {
-              errorMessage = "This wallet address is already registered.";
-            } else if (errorData.error.includes("username")) {
-              errorMessage = "This username is already taken.";
-            } else if (errorData.error.includes("email")) {
-              errorMessage = "This email is already in use.";
+              toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong ser.",
+                description: errorMessage,
+              });
+              throw new Error(errorMessage);
             }
           }
-
-          toast({
-            variant: "destructive",
-            title: "Uh oh! Something went wrong ser.",
-            description: errorMessage,
-          });
-          throw new Error(errorMessage);
-        } else {
-          console.log("User registered successfully");
-          toast({
-            variant: "default",
-            title: "Success!",
-            description: "User registered successfully.",
-          });
-          router.push("/");
         }
+        router.push("/");
       } catch (error) {
         console.error("Error registering base name:", error);
         toast({

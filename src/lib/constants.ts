@@ -8,9 +8,9 @@ export const navItems = [
     icon: "/icons/pay.svg",
   },
   {
-    href: "/scan",
-    name: "Scan",
-    icon: "/icons/scan.svg",
+    href: "/merchant",
+    name: "Merchant",
+    icon: "/icons/merchant.svg",
   },
 ];
 
