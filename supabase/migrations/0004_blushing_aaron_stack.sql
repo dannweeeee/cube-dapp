@@ -1,0 +1,1 @@
+ALTER TABLE "transactions_table" DROP COLUMN IF EXISTS "updated_at";

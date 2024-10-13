@@ -3,7 +3,9 @@ import { db } from "../index";
 import {
   merchantTable,
   SelectMerchant,
+  SelectTransaction,
   SelectUser,
+  transactionsTable,
   usersTable,
 } from "../schema";
 
@@ -65,4 +67,42 @@ export async function getMerchantByUEN(uen: SelectMerchant["uen"]): Promise<
   }>
 > {
   return db.select().from(merchantTable).where(eq(merchantTable.uen, uen));
+}
+
+export async function getTransactions() {
+  return db.select().from(transactionsTable);
+}
+
+export async function getTransactionsByWalletAddress(
+  user_wallet_address: SelectTransaction["user_wallet_address"]
+): Promise<
+  Array<{
+    transaction_hash: string;
+    merchant_uen: string;
+    user_wallet_address: string;
+    amount: string;
+    created_at: Date;
+  }>
+> {
+  return db
+    .select()
+    .from(transactionsTable)
+    .where(eq(transactionsTable.user_wallet_address, user_wallet_address));
+}
+
+export async function getTransactionsByUEN(
+  merchant_uen: SelectTransaction["merchant_uen"]
+): Promise<
+  Array<{
+    transaction_hash: string;
+    merchant_uen: string;
+    user_wallet_address: string;
+    amount: string;
+    created_at: Date;
+  }>
+> {
+  return db
+    .select()
+    .from(transactionsTable)
+    .where(eq(transactionsTable.merchant_uen, merchant_uen));
 }

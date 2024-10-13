@@ -1,4 +1,10 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  decimal,
+} from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users_table", {
   wallet_address: text("wallet_address").primaryKey(),
@@ -29,3 +35,14 @@ export const merchantTable = pgTable("merchant_table", {
 
 export type InsertMerchant = typeof merchantTable.$inferInsert;
 export type SelectMerchant = typeof merchantTable.$inferSelect;
+
+export const transactionsTable = pgTable("transactions_table", {
+  transaction_hash: text("transaction_hash").primaryKey(),
+  merchant_uen: text("merchant_uen").notNull(),
+  user_wallet_address: text("user_wallet_address").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 5 }).notNull(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type InsertTransaction = typeof transactionsTable.$inferInsert;
+export type SelectTransaction = typeof transactionsTable.$inferSelect;
