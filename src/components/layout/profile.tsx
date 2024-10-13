@@ -8,20 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { BarGraph } from "../ui/charts/bar-graph";
 import { UserTransactions } from "../ui/profile/user-transactions";
-import { AreaGraph } from "../ui/charts/area-graph";
-import { PieGraph } from "../ui/charts/pie-graph";
 import EthBalanceCard from "../ui/profile/eth-balance-card";
 import { useAccount } from "wagmi";
 import UsdcBalanceCard from "../ui/profile/usdc-balance-card";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { MerchantTransactions } from "../ui/profile/merchant-transactions";
+import VaultBalanceCard from "../ui/profile/vault-balance-card";
 
 const Profile = () => {
   const { address } = useAccount();
-  const router = useRouter();
 
   return (
     <PageContainer scrollable>
@@ -37,14 +34,6 @@ const Profile = () => {
                   Merchant
                 </TabsTrigger>
               </TabsList>
-              <Button
-                className="w-full bg-blue hover:bg-blue-100 text-white gap-2"
-                onClick={() => {
-                  router.push("/merchant-registration");
-                }}
-              >
-                Join Merchant Network
-              </Button>
             </div>
             <TabsContent value="profile" className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -66,6 +55,7 @@ const Profile = () => {
             <TabsContent value="merchant" className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 {address && <UsdcBalanceCard address={address} />}
+                {address && <VaultBalanceCard address={address} />}
               </div>
               <div className="space-y-4">
                 <Card>

@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 import LoginButton from "../ui/smart-wallet/login-button";
 import SignupButton from "../ui/smart-wallet/signup-button";
 import { useAccount } from "wagmi";
+import PageContainer from "./page-container";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -30,27 +31,30 @@ const Navbar = () => {
               <div className="flex items-center gap-8">
                 {navItems.map((navItem, idx: number) => (
                   <React.Fragment key={`nav-item-${idx}`}>
-                    <Button
-                      onClick={() => router.push(navItem.href)}
-                      className={`relative ${
-                        pathname === navItem.href
-                          ? "bg-blue-100/50"
-                          : "bg-blue-100/30 "
-                      } hover:bg-blue-100/15  transition-colors h-[48px] w-auto text-sm`}
-                    >
-                      <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
-                        <Image
-                          src={navItem.icon}
-                          alt={`${navItem.name} icon`}
-                          width={16}
-                          height={16}
-                        />
-                        {navItem.name}
-                        {pathname === navItem.href && (
-                          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent"></span>
-                        )}
-                      </span>
-                    </Button>
+                    {address && (
+                      <Button
+                        variant="link"
+                        onClick={() => router.push(navItem.href)}
+                        className={`relative ${
+                          pathname === navItem.href
+                            ? "bg-blue-100/50"
+                            : "bg-blue-100/30 "
+                        } hover:bg-blue-100/15  transition-colors h-[48px] w-auto text-sm`}
+                      >
+                        <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
+                          <Image
+                            src={navItem.icon}
+                            alt={`${navItem.name} icon`}
+                            width={16}
+                            height={16}
+                          />
+                          {navItem.name}
+                          {pathname === navItem.href && (
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent"></span>
+                          )}
+                        </span>
+                      </Button>
+                    )}
                   </React.Fragment>
                 ))}
               </div>
