@@ -5,8 +5,19 @@ import { Highlight } from "@/components/ui/hero-highlight";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Rocket } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAccount } from "wagmi";
 
 const Hero = () => {
+  const { isConnected } = useAccount();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isConnected) {
+      router.push("/registration");
+    }
+  }, [isConnected, router]);
   return (
     <div className="container mx-auto relative text-primary">
       <motion.h1

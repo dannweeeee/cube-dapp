@@ -143,7 +143,7 @@ export function PayToQRForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 md:p-8 rounded-none md:rounded-2xl shadow-input bg-transparent dark:bg-black">
+    <div className="w-full max-w-md mx-auto p-4 mt-20 md:p-8 rounded-none md:rounded-2xl shadow-input bg-transparent dark:bg-black">
       {scanData ? (
         <>
           <div className="text-center">

@@ -24,9 +24,9 @@ const Profile = () => {
 
   return (
     <PageContainer scrollable>
-      <div className="flex justify-center items-center min-h-screen px-4 pt-16 sm:pt-0">
+      <div className="flex justify-center items-start px-4 mt-20 sm:pt-0">
         {" "}
-        {/* Added pt-16 for mobile */}
+        {/* Increased pt-20 for mobile to accommodate navbar */}
         <div className="w-full max-w-4xl space-y-4">
           <Tabs defaultValue="profile" className="space-y-4">
             <div className="flex flex-col items-center justify-between gap-4">

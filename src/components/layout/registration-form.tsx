@@ -137,7 +137,7 @@ export function RegistrationForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 md:p-8 rounded-none md:rounded-2xl shadow-input bg-transparent dark:bg-black">
+    <div className="w-full max-w-md mx-auto mt-20 p-4 md:p-8 rounded-none md:rounded-2xl shadow-input bg-transparent dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
         Welcome to Cube
       </h2>
@@ -147,7 +147,9 @@ export function RegistrationForm() {
 
       <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
         <LabelInputContainer className="mb-4">
-          <Label htmlFor="basename">Base Name</Label>
+          <Label htmlFor="basename">
+            Username - <i>this will be your basename</i>
+          </Label>
           <div className="relative">
             <Input
               id="basename"
@@ -156,9 +158,17 @@ export function RegistrationForm() {
               className="pr-20"
               {...register("basename")}
               onChange={(e) => {
+                const lowercaseValue = e.target.value.toLowerCase();
+                e.target.value = lowercaseValue;
                 register("basename").onChange(e);
                 setHaveInput(true);
                 checkBaseNameAvailability(e);
+              }}
+              onKeyPress={(e) => {
+                const char = String.fromCharCode(e.which);
+                if (!/[a-z]/.test(char)) {
+                  e.preventDefault();
+                }
               }}
             />
             {haveInput && (

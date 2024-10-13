@@ -191,7 +191,7 @@ export function MerchantRegistrationForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 md:p-8 rounded-none md:rounded-2xl shadow-input bg-transparent dark:bg-black">
+    <div className="w-full max-w-md mx-auto p-4 md:p-8 mt-20 rounded-none md:rounded-2xl shadow-input bg-transparent dark:bg-black">
       {scanData ? (
         <>
           <div className="text-center">
@@ -270,7 +270,12 @@ export function MerchantRegistrationForm() {
                 <Label htmlFor="vault">
                   Would you like to use Cube vault feature?
                 </Label>
-                <Switch id="vault" {...register("vault")} className="" />
+                <div className="flex items-center space-x-2">
+                  <Switch id="vault" {...register("vault")} disabled={true} />
+                  <span className="text-xs text-gray-500 italic">
+                    Vault feature coming soon
+                  </span>
+                </div>
               </LabelInputContainer>
             </div>
 
