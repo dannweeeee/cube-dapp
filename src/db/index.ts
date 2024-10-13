@@ -1,9 +1,20 @@
-import * as schema from "./schema";
-import { drizzle } from "drizzle-orm/postgres-js";
+import "dotenv/config";
+import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { config } from "dotenv";
+import * as schema from "./schema";
 
-config({ path: ".env.local" });
+const connectionString = process.env.NEXT_PUBLIC_DATABASE_URL;
 
-const client = postgres(process.env.NEXT_PUBLIC_DATABASE_URL!);
-export const db = drizzle(client, { schema });
+const drizzleClient = drizzle(
+  postgres(connectionString!, {
+    prepare: false,
+  }),
+  { schema }
+);
+
+declare global {
+  var database: PostgresJsDatabase<typeof schema> | undefined;
+}
+
+export const db = global.database || drizzleClient;
+if (process.env.NODE_ENV !== "production") global.database = db;

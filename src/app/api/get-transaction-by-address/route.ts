@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTransactionsByWalletAddress } from "@/db/queries/select";
 
+const MAX_RETRIES = 3;
+const INITIAL_BACKOFF = 1000; // 1 second
+
+async function fetchWithRetry(
+  walletAddress: string,
+  retries = 0
+): Promise<any> {
+  try {
+    return await getTransactionsByWalletAddress(walletAddress);
+  } catch (error) {
+    if (retries < MAX_RETRIES) {
+      const backoff = INITIAL_BACKOFF * Math.pow(2, retries);
+      console.log(`Retrying in ${backoff}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, backoff));
+      return fetchWithRetry(walletAddress, retries + 1);
+    }
+    throw error;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const walletAddress = request.nextUrl.searchParams.get("user_wallet_address");
 
@@ -12,7 +32,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const transactions = await getTransactionsByWalletAddress(walletAddress);
+    const transactions = await fetchWithRetry(walletAddress);
 
     if (transactions.length === 0) {
       return NextResponse.json(

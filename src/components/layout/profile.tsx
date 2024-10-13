@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { BarGraph } from "../ui/charts/bar-graph";
-import { RecentTransactions } from "../ui/profile/recent-transactions";
+import { UserTransactions } from "../ui/profile/user-transactions";
 import { AreaGraph } from "../ui/charts/area-graph";
 import { PieGraph } from "../ui/charts/pie-graph";
 import EthBalanceCard from "../ui/profile/eth-balance-card";
@@ -60,7 +60,7 @@ const Profile = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentTransactions />
+                  <UserTransactions />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -178,7 +178,7 @@ const Profile = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RecentTransactions />
+                    <UserTransactions />
                   </CardContent>
                 </Card>
                 <AreaGraph />

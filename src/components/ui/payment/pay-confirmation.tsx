@@ -30,6 +30,7 @@ import { toast } from "@/hooks/useToast";
 import { useRouter } from "next/navigation";
 import { formatUnits } from "viem";
 import { Send } from "lucide-react";
+import axios from "axios";
 
 export function PayConfirmation({
   uen,
@@ -43,9 +44,9 @@ export function PayConfirmation({
   onOpenChange: (open: boolean) => void;
 }) {
   const wagmiConfig = useWagmiConfig();
-  const { isConnected } = useAccount();
+  const account = useAccount();
   const router = useRouter();
-  console.log(isConnected);
+  console.log(account.isConnected);
   console.log(wagmiConfig.connectors);
 
   const approvalAmount = BigInt(Math.ceil(amount * 0.77 * 10 ** 6));
@@ -59,7 +60,7 @@ export function PayConfirmation({
   });
 
   const approveAndTransfer = async () => {
-    if (!isConnected) {
+    if (!account.isConnected) {
       toast({
         variant: "destructive",
         title: "Wallet not connected",
@@ -70,6 +71,7 @@ export function PayConfirmation({
 
     try {
       const approveHash = await writeContract(wagmiConfig, {
+        account: account.address,
         address: BASE_SEPOLIA_USDC_ADDRESS,
         abi: UsdcAbi,
         functionName: "approve",
@@ -85,6 +87,15 @@ export function PayConfirmation({
         chainId: baseSepolia.id,
       });
       await waitForTransactionReceipt(wagmiConfig, { hash: transferHash });
+
+      const response = await axios.post("/api/create-transaction", {
+        transaction_hash: transferHash,
+        merchant_uen: uen,
+        user_wallet_address: account.address,
+        amount: amount,
+      });
+
+      console.log("Transaction added to database successfully", response);
 
       toast({
         variant: "default",
