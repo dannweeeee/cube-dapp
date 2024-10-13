@@ -169,7 +169,7 @@ export function MerchantRegistrationForm() {
             }
           }
         }
-        router.push("/merchant");
+        router.push("/");
       } catch (error) {
         console.error("Error registering merchant:", error);
         toast({

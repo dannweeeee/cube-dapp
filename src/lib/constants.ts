@@ -4,13 +4,8 @@
 export const navItems = [
   {
     href: "/pay",
-    name: "Pay",
-    icon: "/icons/pay.svg",
-  },
-  {
-    href: "/merchant",
-    name: "Merchant",
-    icon: "/icons/merchant.svg",
+    name: "Scan & Pay",
+    icon: "/icons/scan.svg",
   },
 ];
 

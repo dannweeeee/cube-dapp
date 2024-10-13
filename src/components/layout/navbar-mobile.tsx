@@ -20,7 +20,7 @@ import { Button } from "../ui/button";
 const NavMobile = ({
   navItems,
 }: {
-  navItems: Array<{ href: string; name: React.ReactNode }>;
+  navItems: Array<{ href: string; name: React.ReactNode; icon: string }>;
 }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -49,7 +49,8 @@ const NavMobile = ({
               </Link>
             </div>
           </SheetTitle>
-          <div className="flex flex-col items-start pt-12 gap-4 pb-5">
+          <div className="h-4" />
+          <div className="flex items-center justify-center gap-4">
             {navItems.map((navItem, idx: number) => (
               <React.Fragment key={`nav-item-${idx}`}>
                 <Button
@@ -58,14 +59,15 @@ const NavMobile = ({
                     pathname === navItem.href
                       ? "bg-blue-100/50"
                       : "bg-blue-100/30 "
-                  } hover:bg-blue-100/15  transition-colors h-[48px] w-auto text-sm`}
+                  } hover:bg-blue-100/15  transition-colors h-[48px] w-1/2 h-[48px] text-sm`}
                 >
                   <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
-                    {navItem.name === "Pay" ? (
-                      <Send className="w-4 h-4" />
-                    ) : (
-                      <Store className="w-4 h-4" />
-                    )}
+                    <Image
+                      src={navItem.icon}
+                      alt={`${navItem.name} icon`}
+                      width={16}
+                      height={16}
+                    />
                     {navItem.name}
                     {pathname === navItem.href && (
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent"></span>
@@ -75,7 +77,8 @@ const NavMobile = ({
               </React.Fragment>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="h-4" />
+          <div className="flex items-center justify-center gap-2">
             <SignupButton />
             {!address && <LoginButton />}
           </div>
