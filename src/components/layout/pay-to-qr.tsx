@@ -244,7 +244,7 @@ export function PayToQRForm() {
               className="relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
               type="submit"
             >
-              Pay Now <Send className="w-4 h-4 ml-1" />
+              Confirm Payment
             </Button>
           </form>
         </>
