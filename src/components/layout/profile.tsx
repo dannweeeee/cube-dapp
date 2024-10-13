@@ -15,18 +15,35 @@ import { PieGraph } from "../ui/charts/pie-graph";
 import EthBalanceCard from "../ui/profile/eth-balance-card";
 import { useAccount } from "wagmi";
 import UsdcBalanceCard from "../ui/profile/usdc-balance-card";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 const profile = () => {
   const { address } = useAccount();
+  const router = useRouter();
 
   return (
     <PageContainer scrollable>
-      <div className="space-y-2 mt-12 container mx-auto relative">
+      <div className="space-y-2 mt-14 container mx-auto relative">
         <Tabs defaultValue="profile" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="merchant">Merchant</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger className="h-[35px]" value="profile">
+                Profile
+              </TabsTrigger>
+              <TabsTrigger className="h-[35px]" value="merchant">
+                Merchant
+              </TabsTrigger>
+            </TabsList>
+            <Button
+              className="bg-blue hover:bg-blue-100 text-white gap-2"
+              onClick={() => {
+                router.push("/merchant-registration");
+              }}
+            >
+              Join Merchant Network
+            </Button>
+          </div>
           <TabsContent value="profile" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {address && <EthBalanceCard address={address} />}

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../card";
 import { Address } from "viem";
 import { useUserEthBalance } from "@/hooks/useUserEthBalance";
 import Image from "next/image";
+import { SyncLoader } from "react-spinners";
 
 const EthBalanceCard = ({ address }: { address: Address }) => {
   const { balance, isLoading, error } = useUserEthBalance(address);
@@ -17,7 +18,9 @@ const EthBalanceCard = ({ address }: { address: Address }) => {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="text-2xl font-bold">Loading...</div>
+          <div className="text-2xl font-bold">
+            <SyncLoader size={5} />
+          </div>
         ) : error ? (
           <div className="text-2xl font-bold text-red-500">
             Error fetching balance
