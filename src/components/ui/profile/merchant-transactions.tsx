@@ -39,7 +39,7 @@ export function MerchantTransactions() {
   ) {
     return (
       <div className="text-gray-500 text-center p-4">
-        No recent transactions found.
+        No transactions found.
       </div>
     );
   }

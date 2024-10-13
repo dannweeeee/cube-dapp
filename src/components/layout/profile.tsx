@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useMemo } from "react";
 import PageContainer from "./page-container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import {
@@ -10,15 +12,34 @@ import {
 } from "../ui/card";
 import { UserTransactions } from "../ui/profile/user-transactions";
 import EthBalanceCard from "../ui/profile/eth-balance-card";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import UsdcBalanceCard from "../ui/profile/usdc-balance-card";
-import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
 import { MerchantTransactions } from "../ui/profile/merchant-transactions";
 import VaultBalanceCard from "../ui/profile/vault-balance-card";
+import RegistryAbi from "@/abis/RegistryAbi";
+import { BASE_SEPOLIA_REGISTRY_ADDRESS } from "@/lib/constants";
+import MerchantDetailsCard from "../ui/profile/merchant-details-card";
 
 const Profile = () => {
   const { address } = useAccount();
+
+  const { data } = useReadContract({
+    abi: RegistryAbi,
+    address: BASE_SEPOLIA_REGISTRY_ADDRESS,
+    functionName: "getMerchantsByWalletAddress",
+    args: [address as `0x${string}`],
+  });
+
+  const merchants = useMemo(() => {
+    return data && data.length > 0
+      ? data.map((merchant) => ({
+          uen: merchant.uen,
+          name: merchant.entity_name,
+          owner: merchant.owner_name,
+          address: merchant.wallet_address,
+        }))
+      : [];
+  }, [data]);
 
   return (
     <PageContainer scrollable>
@@ -56,6 +77,16 @@ const Profile = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 {address && <UsdcBalanceCard address={address} />}
                 {address && <VaultBalanceCard address={address} />}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {merchants.map((merchant) => (
+                  <MerchantDetailsCard
+                    key={merchant.uen}
+                    uen={merchant.uen}
+                    name={merchant.name}
+                    address={merchant.address}
+                  />
+                ))}
               </div>
               <div className="space-y-4">
                 <Card>
