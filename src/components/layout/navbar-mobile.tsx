@@ -59,7 +59,7 @@ const NavMobile = ({
                     pathname === navItem.href
                       ? "bg-blue-100/50"
                       : "bg-blue-100/30 "
-                  } hover:bg-blue-100/15  transition-colors h-[48px] w-1/2 h-[48px] text-sm`}
+                  } hover:bg-blue-100/15  transition-colors h-[48px] w-1/2 text-sm`}
                 >
                   <span className="flex items-center gap-1 text-md !cursor-pointer font-semibold text-black">
                     <Image
