@@ -44,7 +44,7 @@ export function PayToQRForm() {
     resolver: zodResolver(paymentFormSchema),
     defaultValues: {
       uen: "",
-      amount: 0,
+      amount: undefined,
     },
   });
 
@@ -172,10 +172,10 @@ export function PayToQRForm() {
       ) : (
         <>
           <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-            Join Cube&apos;s Merchant Network
+            Payment Details
           </h2>
           <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-            Register your Merchant UEN with Cube on BASE (Sepolia).
+            Please check the details below and confirm the payment.
           </p>
 
           <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
@@ -187,7 +187,7 @@ export function PayToQRForm() {
                   type="text"
                   placeholder="...merchant UEN"
                   {...register("uen")}
-                  className="pr-40"
+                  className="pr-36"
                   disabled={!scanData}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center">

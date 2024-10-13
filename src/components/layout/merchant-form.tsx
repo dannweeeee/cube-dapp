@@ -232,7 +232,7 @@ export function MerchantRegistrationForm() {
                   placeholder="00022100K"
                   type="text"
                   {...register("uen")}
-                  className="pr-40"
+                  className="pr-36"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center">
                   <Button
