@@ -26,3 +26,11 @@ export interface Merchant {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface Transaction {
+  transaction_hash: string;
+  user_wallet_address: string;
+  merchant_uen: string;
+  amount: bigint;
+  created_at: Date;
+}

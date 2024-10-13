@@ -147,10 +147,10 @@ export function PayToQRForm() {
       {scanData ? (
         <>
           <div className="text-center">
-            <h2 className="font-bold text-2xl text-neutral-800 dark:text-neutral-200 mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
+            <h2 className="font-bold text-xl md:text-2xl text-neutral-800 dark:text-neutral-200 mb-4 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
               Scan QR Code to Auto-Fill
             </h2>
-            <p className="text-neutral-600 text-sm max-w-sm mx-auto mb-6 dark:text-neutral-300 italic">
+            <p className="text-neutral-600 text-xs md:text-sm max-w-sm mx-auto mb-6 dark:text-neutral-300 italic">
               Align camera with QR code to pay in <strong>Singapore</strong>,{" "}
               <strong>China</strong>, <strong>Malaysia</strong>,
               <strong>Thailand</strong> and other{" "}
@@ -160,7 +160,7 @@ export function PayToQRForm() {
           <div className="flex flex-col items-center justify-center">
             <QRScanner onScan={handleScan} />
             <Button
-              className="mt-5 relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-1/3 rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              className="mt-5 relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-full md:w-1/3 rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
               onClick={() => {
                 router.push("/");
               }}
@@ -171,14 +171,14 @@ export function PayToQRForm() {
         </>
       ) : (
         <>
-          <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
+          <h2 className="font-bold text-lg md:text-xl text-neutral-800 dark:text-neutral-200">
             Payment Details
           </h2>
-          <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
+          <p className="text-neutral-600 text-xs md:text-sm max-w-sm mt-2 dark:text-neutral-300">
             Please check the details below and confirm the payment.
           </p>
 
-          <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
+          <form className="my-6 md:my-8" onSubmit={handleSubmit(onSubmit)}>
             <LabelInputContainer className="mb-4">
               <Label htmlFor="uen">Merchant UEN</Label>
               <div className="relative flex w-full">
@@ -187,7 +187,7 @@ export function PayToQRForm() {
                   type="text"
                   placeholder="...merchant UEN"
                   {...register("uen")}
-                  className="pr-36"
+                  className="pr-24 md:pr-36"
                   disabled={!scanData}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center">
@@ -202,7 +202,7 @@ export function PayToQRForm() {
                 </div>
               </div>
               {errors.uen && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs md:text-sm mt-1">
                   {errors.uen.message}
                 </p>
               )}
@@ -234,7 +234,7 @@ export function PayToQRForm() {
                 })}
               />
               {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs md:text-sm mt-1">
                   {errors.amount.message}
                 </p>
               )}
