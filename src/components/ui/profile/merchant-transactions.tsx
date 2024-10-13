@@ -1,14 +1,27 @@
-import { useFetchTransactionsByAddress } from "@/hooks/useFetchTransactionsByAddress";
-import { useAccount } from "wagmi";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2, ExternalLink } from "lucide-react";
 import { Transaction } from "@/lib/types";
+import { useReadContract, useAccount } from "wagmi";
+import RegistryAbi from "@/abis/RegistryAbi";
+import { BASE_SEPOLIA_REGISTRY_ADDRESS } from "@/lib/constants";
+import { useFetchTransactionsByUen } from "@/hooks/useFetchTransactionsByUen";
+import { useMemo } from "react";
 
-export function UserTransactions() {
+export function MerchantTransactions() {
   const { address } = useAccount();
-  const { transactions, loading, error } = useFetchTransactionsByAddress(
-    address ?? null
-  );
+
+  const { data } = useReadContract({
+    abi: RegistryAbi,
+    address: BASE_SEPOLIA_REGISTRY_ADDRESS,
+    functionName: "getMerchantsByWalletAddress",
+    args: [address as `0x${string}`],
+  });
+
+  const uens = useMemo(() => {
+    return data && data.length > 0 ? data.map((merchant) => merchant.uen) : [];
+  }, [data]);
+
+  const { transactions, loading, error } = useFetchTransactionsByUen(uens);
 
   if (loading) {
     return (
@@ -26,7 +39,7 @@ export function UserTransactions() {
   ) {
     return (
       <div className="text-gray-500 text-center p-4">
-        No transactions found.
+        No recent transactions found.
       </div>
     );
   }

@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     if (transactions.length === 0) {
       return NextResponse.json(
-        { error: "No transactions found" },
+        { message: "No transactions found" },
         { status: 404 }
       );
     }

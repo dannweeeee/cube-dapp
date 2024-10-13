@@ -8,6 +8,7 @@ import NProgressBar from "@/components/ui/nprogress-bar";
 import Navbar from "@/components/layout/navbar";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { Toaster } from "@/components/ui/toaster";
+import Footer from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   title: "Cube",
@@ -35,6 +36,7 @@ export default function RootLayout({
               <AuroraBackground>
                 <Navbar />
                 {children}
+                <Footer />
               </AuroraBackground>
               <Toaster />
             </main>
