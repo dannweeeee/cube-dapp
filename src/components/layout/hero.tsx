@@ -1,20 +1,18 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Highlight } from "@/components/ui/hero-highlight";
 import { cn } from "@/lib/utils";
 import { ConnectWallet } from "@coinbase/onchainkit/wallet";
 import { motion } from "framer-motion";
-import { Box, PackageOpen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAccount } from "wagmi";
 
 const Hero = () => {
   const { isConnected } = useAccount();
   const router = useRouter();
-  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (isConnected) {
