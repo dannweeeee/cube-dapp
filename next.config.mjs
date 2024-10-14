@@ -6,16 +6,6 @@ const nextConfig = {
         unoptimized: true,
     },
     trailingSlash: true,
-    images: {
-        remotePatterns: [
-            {
-                protocol: 'https',
-                hostname: 'api.multiavatar.com',
-                port: '',
-                pathname: '/**',
-            },
-        ],
-    },
     webpack: (config, { isServer }) => {
         if (!isServer) {
             config.resolve.fallback = {

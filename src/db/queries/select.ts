@@ -13,6 +13,12 @@ export async function getUsers() {
   return db.select().from(usersTable);
 }
 
+export async function getUsersWalletAddress() {
+  return db
+    .select({ wallet_address: usersTable.wallet_address })
+    .from(usersTable);
+}
+
 export async function getUserByWalletAddress(
   wallet_address: SelectUser["wallet_address"]
 ): Promise<
