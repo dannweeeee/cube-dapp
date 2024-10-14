@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/useToast";
 import { useFetchUserByAddress } from "@/hooks/useFetchUserByAddress";
 
 import QRScanner from "@/components/layout/qr-scanner";
-import { ScanQrCode, Send } from "lucide-react";
+import { ScanQrCode } from "lucide-react";
 import { PayConfirmation } from "../ui/payment/pay-confirmation";
 
 const paymentFormSchema = z.object({

@@ -76,7 +76,7 @@ const Profile = () => {
             <TabsContent value="merchant" className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 {address && <UsdcBalanceCard address={address} />}
-                {address && <VaultBalanceCard address={address} />}
+                {address && <VaultBalanceCard />}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {merchants.map((merchant) => (
@@ -84,7 +84,6 @@ const Profile = () => {
                     key={merchant.uen}
                     uen={merchant.uen}
                     name={merchant.name}
-                    address={merchant.address}
                   />
                 ))}
               </div>

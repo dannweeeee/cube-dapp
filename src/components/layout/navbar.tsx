@@ -6,13 +6,11 @@ import NavMobile from "./navbar-mobile";
 import Image from "next/image";
 import React from "react";
 import { usePathname } from "next/navigation";
-import { Send, Store } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import LoginButton from "../ui/smart-wallet/login-button";
 import SignupButton from "../ui/smart-wallet/signup-button";
 import { useAccount } from "wagmi";
-import PageContainer from "./page-container";
 
 const Navbar = () => {
   const pathname = usePathname();

@@ -29,8 +29,8 @@ export interface Merchant {
 
 export interface Transaction {
   transaction_hash: string;
-  user_wallet_address: string;
   merchant_uen: string;
-  amount: bigint;
+  user_wallet_address: string;
+  amount: number;
   created_at: Date;
 }

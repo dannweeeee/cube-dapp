@@ -1,9 +1,8 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../card";
-import { Address } from "viem";
 import { Percent } from "lucide-react";
 
-const VaultBalanceCard = ({ address }: { address: Address }) => {
+const VaultBalanceCard = () => {
   return (
     <Card className="opacity-50">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

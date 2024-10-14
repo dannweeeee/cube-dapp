@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTransactionsByWalletAddress } from "@/db/queries/select";
+import { Transaction } from "@/lib/types";
 
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF = 1000; // 1 second
@@ -7,9 +8,13 @@ const INITIAL_BACKOFF = 1000; // 1 second
 async function fetchWithRetry(
   walletAddress: string,
   retries = 0
-): Promise<any> {
+): Promise<Transaction[]> {
   try {
-    return await getTransactionsByWalletAddress(walletAddress);
+    const rawTransactions = await getTransactionsByWalletAddress(walletAddress);
+    return rawTransactions.map((transaction) => ({
+      ...transaction,
+      amount: parseFloat(transaction.amount),
+    }));
   } catch (error) {
     if (retries < MAX_RETRIES) {
       const backoff = INITIAL_BACKOFF * Math.pow(2, retries);

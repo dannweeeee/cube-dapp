@@ -7,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { AlignRight, Send, Store } from "lucide-react";
+import { AlignRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";

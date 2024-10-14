@@ -13,8 +13,13 @@ const drizzleClient = drizzle(
 );
 
 declare global {
-  var database: PostgresJsDatabase<typeof schema> | undefined;
+  let database: PostgresJsDatabase<typeof schema> | undefined;
 }
 
-export const db = global.database || drizzleClient;
-if (process.env.NODE_ENV !== "production") global.database = db;
+type GlobalWithDatabase = typeof globalThis & {
+  database: PostgresJsDatabase<typeof schema> | undefined;
+};
+
+export const db = (global as GlobalWithDatabase).database || drizzleClient;
+if (process.env.NODE_ENV !== "production")
+  (global as GlobalWithDatabase).database = db;
