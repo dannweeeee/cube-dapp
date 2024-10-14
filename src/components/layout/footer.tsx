@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold text-blue-600 uppercase tracking-wide">
-            Breaking The Ice In Finance
+            Breaking The Ice In Finance One Cube At A Time
           </h2>
           <p className="mt-1 text-sm text-blue-100/90 font-light">
             Real World Payments 🫱🏻‍🫲🏽 Onchain Economy
@@ -19,13 +19,6 @@ const Footer = () => {
         </div>
 
         <div className="flex flex-col items-center space-y-4 mb-4">
-          <Button
-            variant="link"
-            asChild
-            className="text-black bg-blue-100/30 hover:bg-blue-100/15 font-medium text-sm w-full max-w-xs"
-          >
-            <Link href="/pay">Scan & Pay</Link>
-          </Button>
           <Button
             variant="link"
             asChild

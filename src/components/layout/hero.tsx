@@ -3,6 +3,7 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Highlight } from "@/components/ui/hero-highlight";
 import { cn } from "@/lib/utils";
+import { ConnectWallet } from "@coinbase/onchainkit/wallet";
 import { motion } from "framer-motion";
 import { Box, PackageOpen } from "lucide-react";
 import Image from "next/image";
@@ -41,7 +42,7 @@ const Hero = () => {
         Pay With Crypto
         <br />
         <Highlight className="text-black dark:text-white rounded-xl">
-          While Staying Onchain
+          While Staying Onchain{" "}
         </Highlight>
       </motion.h1>
       <motion.p
@@ -60,7 +61,7 @@ const Hero = () => {
         }}
         className="text-center mt-4 sm:text-lg md:text-xl lg:text-[22px] md:max-w-prose mx-auto font-medium relative bg-contrast"
       >
-        Cube is the onchain hub for executing real world payments with crypto.
+        Cube is the onchain hub for executing real world payments with crypto
       </motion.p>
       <motion.div
         initial={{
@@ -78,23 +79,14 @@ const Hero = () => {
         }}
         className="mt-6 flex flex-col items-center justify-center w-full px-4 sm:px-0"
       >
-        <Button
+        <ConnectWallet
+          withWalletAggregator={true}
+          text="Explore Cube 🧊"
           className={cn(
             buttonVariants(),
-            "w-full sm:w-3/4 md:w-2/3 lg:w-1/2 py-4 sm:py-6 text-sm sm:text-base bg-blue hover:bg-blue-100 text-white gap-2 rounded-full transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl"
+            "w-full sm:w-3/4 md:w-2/3 lg:w-1/2 py-4 sm:py-6 text-sm sm:text-base bg-blue hover:bg-blue-100 text-white gap-2 rounded-2xl transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl"
           )}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <span className="mr-1">Get Started</span>
-          <div className="relative w-4 h-4 sm:w-5 sm:h-5">
-            {isHovered ? (
-              <PackageOpen className="w-full h-full absolute transition-opacity duration-300 ease-in-out" />
-            ) : (
-              <Box className="w-full h-full absolute transition-opacity duration-300 ease-in-out" />
-            )}
-          </div>
-        </Button>
+        />
       </motion.div>
       <motion.div
         initial={{
@@ -112,7 +104,7 @@ const Hero = () => {
         }}
         className="container mx-auto mt-8"
       >
-        <div className="relative rounded-lg w-full md:w-10/12 mx-auto overflow-hidden mt-8">
+        <div className="relative rounded-lg w-full md:w-10/12 mx-auto overflow-hidden">
           <Image
             src="/assets/png/cube-cover-banner-v4.png"
             height={720}
