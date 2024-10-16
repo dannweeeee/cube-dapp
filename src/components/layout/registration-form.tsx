@@ -12,12 +12,14 @@ import { cn } from "@/lib/utils";
 import { isBaseNameRegistered, registerBaseName } from "../scripts/basename";
 
 import { useAccount } from "wagmi";
+import { Address } from "viem";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
+import RegisterBasename from "../ui/transactions/register-basename";
 
 const registrationFormSchema = z.object({
   basename: z.string().min(4).max(20),
@@ -32,6 +34,7 @@ export function RegistrationForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RegistrationFormValues>({
     resolver: zodResolver(registrationFormSchema),
@@ -49,6 +52,8 @@ export function RegistrationForm() {
   const router = useRouter();
   const { toast } = useToast();
   const { address } = useAccount();
+
+  const basename = watch("basename");
 
   const onSubmit = async (data: RegistrationFormValues) => {
     if (address && baseNameAvailable) {
@@ -228,6 +233,7 @@ export function RegistrationForm() {
         >
           Register &rarr;
         </Button>
+        <RegisterBasename baseName={basename} address={address as Address} />
       </form>
     </div>
   );
