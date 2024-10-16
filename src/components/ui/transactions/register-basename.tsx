@@ -90,7 +90,8 @@ export default function RegisterBasename({
         onSuccess={handleSuccess}
         capabilities={{
           paymasterService: {
-            url: "https://api.developer.coinbase.com/rpc/v1/base-sepolia/34PnQ4voALzFsDqpopisMEtzcQ-C-iuU",
+            url: process.env
+              .NEXT_PUBLIC_CDP_PAYMASTER_AND_BUNDLER_ENDPOINT as string,
           },
         }}
       >
