@@ -8,8 +8,8 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
-import LoginButton from "../ui/smart-wallet/login-button";
-import SignupButton from "../ui/smart-wallet/signup-button";
+import LoginButton from "../ui/wallet/login-button";
+import SignupButton from "../ui/wallet/signup-button";
 import { useAccount } from "wagmi";
 
 const Navbar = () => {

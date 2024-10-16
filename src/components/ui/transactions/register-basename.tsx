@@ -90,8 +90,7 @@ export default function RegisterBasename({
         onSuccess={handleSuccess}
         capabilities={{
           paymasterService: {
-            url: process.env
-              .NEXT_PUBLIC_CDP_PAYMASTER_AND_BUNDLER_ENDPOINT as string,
+            url: process.env.NEXT_PUBLIC_CDP_PAYMASTER_AND_BUNDLER_ENDPOINT!,
           },
         }}
       >

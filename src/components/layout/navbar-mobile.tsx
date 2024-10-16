@@ -12,8 +12,8 @@ import Link from "next/link";
 import Image from "next/image";
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import LoginButton from "../ui/smart-wallet/login-button";
-import SignupButton from "../ui/smart-wallet/signup-button";
+import LoginButton from "../ui/wallet/login-button";
+import SignupButton from "../ui/wallet/signup-button";
 import { useAccount } from "wagmi";
 import { Button } from "../ui/button";
 
