@@ -16,7 +16,7 @@
   "dependencies": {
     "@coinbase/cbpay-js": "^2.2.1",
     "@coinbase/coinbase-sdk": "^0.7.0",
-    "@coinbase/onchainkit": "^0.33.3",
+    "@coinbase/onchainkit": "^0.34.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
