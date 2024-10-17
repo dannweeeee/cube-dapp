@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,12 +10,11 @@ import {
 } from "@/components/ui/dialog";
 
 import { useReadContract, useAccount } from "wagmi";
-import { writeContract, waitForTransactionReceipt } from "wagmi/actions";
-
-import { baseSepolia } from "viem/chains";
+import { encodeFunctionData } from "viem";
 
 import RegistryAbi from "@/abis/RegistryAbi";
 import {
+  BASE_SEPOLIA_CHAIN_ID,
   BASE_SEPOLIA_EXCHANGE_ADDRESS,
   BASE_SEPOLIA_REGISTRY_ADDRESS,
   BASE_SEPOLIA_USDC_ADDRESS,
@@ -25,12 +23,20 @@ import {
 import UsdcAbi from "@/abis/UsdcAbi";
 import ExchangeAbi from "@/abis/ExchangeAbi";
 
-import { useWagmiConfig } from "@/components/onchainkit/wagmi";
 import { toast } from "@/hooks/useToast";
 import { useRouter } from "next/navigation";
 import { formatUnits } from "viem";
-import { Send } from "lucide-react";
 import axios from "axios";
+import {
+  Transaction,
+  TransactionButton,
+  TransactionError,
+  TransactionResponse,
+  TransactionStatus,
+  TransactionStatusAction,
+  TransactionStatusLabel,
+} from "@coinbase/onchainkit/transaction";
+import { useMemo, useRef, useState } from "react";
 
 export function PayConfirmation({
   uen,
@@ -43,12 +49,10 @@ export function PayConfirmation({
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const wagmiConfig = useWagmiConfig();
   const account = useAccount();
   const router = useRouter();
-  console.log(account.isConnected);
-  console.log(wagmiConfig.connectors);
-
+  const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
+  const hasPostedTransaction = useRef(false);
   const approvalAmount = BigInt(Math.ceil(amount * 0.77 * 10 ** 6));
   const formattedApprovalAmount = formatUnits(approvalAmount, 6);
 
@@ -59,51 +63,71 @@ export function PayConfirmation({
     args: [uen],
   });
 
-  const approveAndTransfer = async () => {
-    if (!account.isConnected) {
-      toast({
-        variant: "destructive",
-        title: "Wallet not connected",
-        description: "Please connect your wallet to proceed with the payment.",
-      });
-      return;
-    }
+  const approveAndTransferCall = useMemo(() => {
+    if (!BASE_SEPOLIA_USDC_ADDRESS || !account.address || !approvalAmount)
+      return [];
+    return [
+      {
+        to: BASE_SEPOLIA_USDC_ADDRESS as `0x${string}`,
+        data: encodeFunctionData({
+          abi: UsdcAbi,
+          functionName: "approve",
+          args: [BASE_SEPOLIA_EXCHANGE_ADDRESS, approvalAmount],
+        }),
+      },
+      {
+        to: BASE_SEPOLIA_EXCHANGE_ADDRESS as `0x${string}`,
+        data: encodeFunctionData({
+          abi: ExchangeAbi,
+          functionName: "transferToMerchant",
+          args: [uen, approvalAmount],
+        }),
+      },
+    ];
+  }, [approvalAmount, account.address, uen]);
+
+  const handleSuccess = async (transactionResponse: TransactionResponse) => {
+    if (isTransactionInProgress || hasPostedTransaction.current) return;
+    setIsTransactionInProgress(true);
 
     try {
-      const approveHash = await writeContract(wagmiConfig, {
-        account: account.address,
-        address: BASE_SEPOLIA_USDC_ADDRESS,
-        abi: UsdcAbi,
-        functionName: "approve",
-        args: [BASE_SEPOLIA_EXCHANGE_ADDRESS, approvalAmount],
-        chainId: baseSepolia.id,
-      });
-      await waitForTransactionReceipt(wagmiConfig, { hash: approveHash });
-      const transferHash = await writeContract(wagmiConfig, {
-        address: BASE_SEPOLIA_EXCHANGE_ADDRESS,
-        abi: ExchangeAbi,
-        functionName: "transferToMerchant",
-        args: [uen, approvalAmount],
-        chainId: baseSepolia.id,
-      });
-      await waitForTransactionReceipt(wagmiConfig, { hash: transferHash });
+      const transactionHash =
+        transactionResponse.transactionReceipts[0].transactionHash;
+      console.log("Transaction Hash:", transactionHash);
 
-      const response = await axios.post("/api/create-transaction", {
-        transaction_hash: transferHash,
-        merchant_uen: uen,
-        user_wallet_address: account.address,
-        amount: amount,
-      });
+      if (!hasPostedTransaction.current) {
+        hasPostedTransaction.current = true;
+        const response = await axios.post(
+          "/api/create-transaction",
+          {
+            transaction_hash: transactionHash,
+            merchant_uen: uen,
+            user_wallet_address: account.address,
+            amount: amount,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-      console.log("Transaction added to database successfully", response);
-
-      toast({
-        variant: "default",
-        title: "Payment Successful",
-        description: "Your payment has been processed successfully.",
-      });
-      onOpenChange(false);
-      router.push("/");
+        if (response.status === 200) {
+          console.log(
+            "Transaction added to database successfully",
+            response.data
+          );
+          toast({
+            variant: "default",
+            title: "Payment Successful",
+            description: "Your payment has been processed successfully.",
+          });
+          onOpenChange(false);
+          router.push("/");
+        } else {
+          throw new Error("Failed to add transaction to database");
+        }
+      }
     } catch (error) {
       console.error("Payment error:", error);
       toast({
@@ -112,7 +136,20 @@ export function PayConfirmation({
         description:
           "There was an error processing your payment. Please try again.",
       });
+    } finally {
+      setIsTransactionInProgress(false);
     }
+  };
+
+  const handleError = (error: TransactionError) => {
+    console.error("Payment error:", error);
+    toast({
+      variant: "destructive",
+      title: "Payment Failed",
+      description:
+        "There was an error processing your payment. Please try again.",
+    });
+    setIsTransactionInProgress(false);
   };
 
   return (
@@ -139,12 +176,28 @@ export function PayConfirmation({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-col gap-2">
-          <Button
-            onClick={approveAndTransfer}
-            className="w-full bg-blue text-[#FFFFFF] hover:bg-blue-100 rounded-xl h-auto font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+          <Transaction
+            chainId={BASE_SEPOLIA_CHAIN_ID}
+            calls={approveAndTransferCall}
+            onError={handleError}
+            onSuccess={handleSuccess}
+            capabilities={{
+              paymasterService: {
+                url: process.env
+                  .NEXT_PUBLIC_CDP_PAYMASTER_AND_BUNDLER_ENDPOINT as string,
+              },
+            }}
           >
-            Pay Now <Send className="w-4 h-4 ml-1" />
-          </Button>
+            <TransactionButton
+              className="mt-0 mr-auto ml-auto max-w-full rounded-xl p-4 "
+              text="Pay"
+              disabled={isTransactionInProgress}
+            />
+            <TransactionStatus>
+              <TransactionStatusLabel />
+              <TransactionStatusAction />
+            </TransactionStatus>
+          </Transaction>
         </DialogFooter>
       </DialogContent>
     </Dialog>
