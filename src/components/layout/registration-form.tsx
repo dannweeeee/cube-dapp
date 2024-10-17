@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 
 import { Label } from "../ui/label";
@@ -9,17 +9,35 @@ import { Button } from "../ui/button";
 
 import { cn } from "@/lib/utils";
 
-import { isBaseNameRegistered, registerBaseName } from "../scripts/basename";
+import {
+  createRegisterContractMethodArgs,
+  estimateMintValue,
+  isBaseNameRegistered,
+} from "../scripts/basename";
 
 import { useAccount } from "wagmi";
-import { Address } from "viem";
+import { encodeFunctionData } from "viem";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
-import RegisterBasename from "../ui/transactions/register-basename";
+import {
+  Transaction,
+  TransactionButton,
+  TransactionError,
+  TransactionResponse,
+  TransactionStatus,
+  TransactionStatusAction,
+  TransactionStatusLabel,
+} from "@coinbase/onchainkit/transaction";
+import {
+  BASE_SEPOLIA_CHAIN_ID,
+  BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS,
+} from "@/lib/constants";
+import { RegistrationArgs } from "@/lib/types";
+import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
 
 const registrationFormSchema = z.object({
   basename: z.string().min(4).max(20),
@@ -33,7 +51,6 @@ type RegistrationFormValues = z.infer<typeof registrationFormSchema>;
 export function RegistrationForm() {
   const {
     register,
-    handleSubmit,
     watch,
     formState: { errors },
   } = useForm<RegistrationFormValues>({
@@ -51,81 +68,124 @@ export function RegistrationForm() {
 
   const router = useRouter();
   const { toast } = useToast();
-  const { address } = useAccount();
+  const account = useAccount();
 
-  const basename = watch("basename");
+  const formData = watch();
 
-  const onSubmit = async (data: RegistrationFormValues) => {
-    if (address && baseNameAvailable) {
-      try {
-        console.log("DATA", data);
+  const [registrationArgs, setRegistrationArgs] =
+    useState<RegistrationArgs | null>(null);
+  const [estimatedValue, setEstimatedValue] = useState<number | null>(null);
 
-        const hash = await registerBaseName(data.basename, address);
+  const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
+  const hasPostedTransaction = useRef(false);
 
-        if (hash) {
-          console.log("TRANSACTION HASH", hash);
-          try {
-            const response = await axios.post("/api/create-user", {
-              wallet_address: address,
-              username: data.basename,
-              email: data.email,
-              first_name: data.firstname,
-              last_name: data.lastname,
-            });
-
-            console.log("User registered successfully", response);
-            toast({
-              variant: "default",
-              title: "Success!",
-              description: "User registered successfully.",
-            });
-          } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-              const errorData = error.response.data;
-              let errorMessage =
-                "There was a problem with your request. Please try again.";
-
-              if (
-                errorData.error &&
-                errorData.error.includes("duplicate key value")
-              ) {
-                if (errorData.error.includes("wallet_address")) {
-                  errorMessage = "This wallet address is already registered.";
-                } else if (errorData.error.includes("username")) {
-                  errorMessage = "This username is already taken.";
-                } else if (errorData.error.includes("email")) {
-                  errorMessage = "This email is already in use.";
-                }
-              }
-
-              toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong ser.",
-                description: errorMessage,
-              });
-              throw new Error(errorMessage);
-            }
-          }
-        }
-        router.push("/");
-      } catch (error) {
-        console.error("Error registering base name:", error);
-        toast({
-          variant: "destructive",
-          title: "Registration Error",
-          description:
-            error instanceof Error
-              ? error.message
-              : "An unexpected error occurred.",
-        });
+  useEffect(() => {
+    const fetchRegistrationData = async () => {
+      if (formData.basename && account.address) {
+        const args = createRegisterContractMethodArgs(
+          formData.basename,
+          account.address
+        );
+        const value = await estimateMintValue(formData.basename, args.duration);
+        setRegistrationArgs(args);
+        setEstimatedValue(Number(value));
       }
-    } else {
+    };
+
+    fetchRegistrationData();
+  }, [formData.basename, account.address]);
+
+  const registerBasenameCall = useMemo(() => {
+    if (
+      !BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS ||
+      !account.address ||
+      !registrationArgs ||
+      estimatedValue === null
+    )
+      return [];
+    return [
+      {
+        to: BASE_SEPOLIA_REGISTRAR_CONTROLLER_ADDRESS as `0x${string}`,
+        data: encodeFunctionData({
+          abi: RegistrarControllerAbi,
+          functionName: "register",
+          args: [
+            {
+              name: registrationArgs.name,
+              owner: registrationArgs.owner,
+              duration: registrationArgs.duration,
+              resolver: registrationArgs.resolver,
+              data: registrationArgs.data,
+              reverseRecord: registrationArgs.reverseRecord,
+            },
+          ],
+        }),
+        value: BigInt(estimatedValue),
+      },
+    ];
+  }, [registrationArgs, account.address, estimatedValue]);
+
+  console.log("registerBasenameCall", registerBasenameCall);
+
+  const handleSuccess = async (transactionResponse: TransactionResponse) => {
+    if (isTransactionInProgress || hasPostedTransaction.current) return;
+    setIsTransactionInProgress(true);
+
+    try {
+      const transactionHash =
+        transactionResponse.transactionReceipts[0].transactionHash;
+      console.log("Transaction Hash:", transactionHash);
+
+      if (!hasPostedTransaction.current) {
+        hasPostedTransaction.current = true;
+        const response = await axios.post(
+          "/api/create-user",
+          {
+            wallet_address: account.address,
+            username: formData.basename,
+            email: formData.email,
+            first_name: formData.firstname,
+            last_name: formData.lastname,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          console.log("User added to database successfully", response.data);
+          toast({
+            variant: "default",
+            title: "Your account has been created successfully!",
+            description: "Welcome to Cube!",
+          });
+          router.push("/");
+        } else {
+          throw new Error("Failed to add user to database");
+        }
+      }
+    } catch (error) {
+      console.error("User registration error:", error);
       toast({
         variant: "destructive",
-        title: "Registration Error",
-        description: "User information or wallet address is missing.",
+        title: "User Registration Failed",
+        description:
+          "There was an error creating your account. Please try again.",
       });
+    } finally {
+      setIsTransactionInProgress(false);
     }
+  };
+
+  const handleError = (error: TransactionError) => {
+    console.error("Transaction Error:", error);
+    toast({
+      variant: "destructive",
+      title: "Transaction Error",
+      description: error.message,
+    });
   };
 
   const checkBaseNameAvailability = async (
@@ -150,7 +210,7 @@ export function RegistrationForm() {
         Create a Cube account on BASE (Sepolia) to get started.
       </p>
 
-      <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
+      <form className="my-8">
         <LabelInputContainer className="mb-4">
           <Label htmlFor="basename">
             Username - <i>this will be your basename</i>
@@ -233,7 +293,28 @@ export function RegistrationForm() {
         >
           Register &rarr;
         </Button>
-        <RegisterBasename baseName={basename} address={address as Address} />
+        <Transaction
+          chainId={BASE_SEPOLIA_CHAIN_ID}
+          calls={registerBasenameCall}
+          onError={handleError}
+          onSuccess={handleSuccess}
+          capabilities={{
+            paymasterService: {
+              url: process.env
+                .NEXT_PUBLIC_CDP_PAYMASTER_AND_BUNDLER_ENDPOINT as string,
+            },
+          }}
+        >
+          <TransactionButton
+            className="mt-0 mr-auto ml-auto max-w-full rounded-xl p-4 "
+            text="Register"
+            disabled={isTransactionInProgress}
+          />
+          <TransactionStatus>
+            <TransactionStatusLabel />
+            <TransactionStatusAction />
+          </TransactionStatus>
+        </Transaction>
       </form>
     </div>
   );
