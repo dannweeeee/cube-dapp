@@ -5,7 +5,6 @@ import axios from "axios";
 
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 
 import { cn } from "@/lib/utils";
 
@@ -286,13 +285,6 @@ export function RegistrationForm() {
             )}
           </LabelInputContainer>
         </div>
-
-        <Button
-          className="relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-          type="submit"
-        >
-          Register &rarr;
-        </Button>
         <Transaction
           chainId={BASE_SEPOLIA_CHAIN_ID}
           calls={registerBasenameCall}
@@ -306,7 +298,7 @@ export function RegistrationForm() {
           }}
         >
           <TransactionButton
-            className="mt-0 mr-auto ml-auto max-w-full rounded-xl p-4 "
+            className="text-sm relative group/btn  text-[#FFFFFF] w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
             text="Register"
             disabled={isTransactionInProgress}
           />
