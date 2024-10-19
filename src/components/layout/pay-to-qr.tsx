@@ -18,9 +18,9 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 import { useFetchUserByAddress } from "@/hooks/useFetchUserByAddress";
 
-import QRScanner from "@/components/layout/qr-scanner";
-import { ScanQrCode } from "lucide-react";
+import { Scanner } from "@yudiel/react-qr-scanner";
 import { PayConfirmation } from "../ui/transactions/pay-confirmation";
+import { ScanQrCode } from "lucide-react";
 
 const paymentFormSchema = z.object({
   uen: z.string().min(4).max(50),
@@ -158,7 +158,26 @@ export function PayToQRForm() {
             </p>
           </div>
           <div className="flex flex-col items-center justify-center">
-            <QRScanner onScan={handleScan} />
+            <Scanner
+              onScan={(result) => {
+                if (result && result.length > 0 && result[0].rawValue) {
+                  handleScan(result[0].rawValue);
+                }
+              }}
+              styles={{
+                container: {
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                },
+                video: {
+                  borderRadius: "16px",
+                },
+              }}
+              components={{
+                audio: false,
+                finder: false,
+              }}
+            />
             <Button
               className="mt-5 relative group/btn bg-blue text-[#FFFFFF] hover:bg-blue-100 w-full md:w-1/3 rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
               onClick={() => {
