@@ -19,9 +19,14 @@ import VaultBalanceCard from "../ui/profile/vault-balance-card";
 import RegistryAbi from "@/abis/RegistryAbi";
 import { BASE_SEPOLIA_REGISTRY_ADDRESS } from "@/lib/constants";
 import MerchantDetailsCard from "../ui/profile/merchant-details-card";
+import { Address } from "viem";
+import { useFetchMerchantVaultStatusByAddress } from "@/hooks/useFetchMerchantVaultStatusByAddress";
 
 const Profile = () => {
   const { address } = useAccount();
+  const { merchantVaultStatus } = useFetchMerchantVaultStatusByAddress(
+    address as Address
+  );
 
   const { data } = useReadContract({
     abi: RegistryAbi,
@@ -74,17 +79,23 @@ const Profile = () => {
               </Card>
             </TabsContent>
             <TabsContent value="merchant" className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                {address && <UsdcBalanceCard address={address} />}
-                {address && <VaultBalanceCard />}
-              </div>
+              {address && <UsdcBalanceCard address={address} />}
               <div className="grid gap-4 sm:grid-cols-2">
                 {merchants.map((merchant) => (
-                  <MerchantDetailsCard
-                    key={merchant.uen}
-                    uen={merchant.uen}
-                    name={merchant.name}
-                  />
+                  <>
+                    <MerchantDetailsCard
+                      key={merchant.uen}
+                      uen={merchant.uen}
+                      name={merchant.name}
+                    />
+                    {merchantVaultStatus && (
+                      <VaultBalanceCard
+                        key={merchant.uen}
+                        uen={merchant.uen}
+                        name={merchant.name}
+                      />
+                    )}
+                  </>
                 ))}
               </div>
               <div className="space-y-4">

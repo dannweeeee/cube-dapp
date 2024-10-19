@@ -14,7 +14,7 @@ const UsdcBalanceCard = ({ address }: { address: Address }) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">USDC Balance</CardTitle>
-        <Image src="/icons/usdc.svg" alt="ETH" width={24} height={24} />
+        <Image src="/icons/usdc.svg" alt="USDC" width={24} height={24} />
       </CardHeader>
       <CardContent>
         {isLoading ? (

@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Merchant } from "@/lib/types";
+import { Address } from "viem";
 
-export function useFetchMerchantVaultStatus(merchantUEN: string) {
+export function useFetchMerchantVaultStatusByAddress(
+  merchantWalletAddress: Address
+) {
   const [merchantVaultStatus, setMerchantVaultStatus] = useState<
     boolean | null
   >(null);
@@ -10,7 +13,7 @@ export function useFetchMerchantVaultStatus(merchantUEN: string) {
 
   useEffect(() => {
     async function fetchMerchantVaultStatus() {
-      if (!merchantUEN) {
+      if (!merchantWalletAddress) {
         setMerchantVaultStatus(null);
         setError(null);
         return;
@@ -21,7 +24,7 @@ export function useFetchMerchantVaultStatus(merchantUEN: string) {
 
       try {
         const response = await fetch(
-          `/api/get-merchant-by-uen?uen=${merchantUEN}`
+          `/api/get-merchant-by-address?merchant_wallet_address=${merchantWalletAddress}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch merchant");
@@ -38,7 +41,7 @@ export function useFetchMerchantVaultStatus(merchantUEN: string) {
     }
 
     fetchMerchantVaultStatus();
-  }, [merchantUEN]);
+  }, [merchantWalletAddress]);
 
   return { merchantVaultStatus, loading, error };
 }

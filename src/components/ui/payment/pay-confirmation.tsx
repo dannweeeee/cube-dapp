@@ -37,7 +37,7 @@ import {
   TransactionStatusLabel,
 } from "@coinbase/onchainkit/transaction";
 import { useMemo, useRef, useState } from "react";
-import { useFetchMerchantVaultStatus } from "@/hooks/useFetchMerchantVaultStatus";
+import { useFetchMerchantVaultStatusByUen } from "@/hooks/useFetchMerchantVaultStatusByUen";
 
 export function PayConfirmation({
   uen,
@@ -56,7 +56,7 @@ export function PayConfirmation({
   const hasPostedTransaction = useRef(false);
   const approvalAmount = BigInt(Math.ceil(amount * 0.77 * 10 ** 6));
   const formattedApprovalAmount = formatUnits(approvalAmount, 6);
-  const { merchantVaultStatus } = useFetchMerchantVaultStatus(uen);
+  const { merchantVaultStatus } = useFetchMerchantVaultStatusByUen(uen);
 
   const { data } = useReadContract({
     abi: RegistryAbi,
