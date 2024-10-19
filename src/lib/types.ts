@@ -22,7 +22,7 @@ export interface Merchant {
   merchant_name: string;
   username: string;
   merchant_wallet_address: string;
-  use_vault: boolean;
+  is_vault_enabled: boolean;
   created_at: Date;
   updated_at: Date;
 }

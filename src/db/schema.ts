@@ -26,7 +26,7 @@ export const merchantTable = pgTable("merchant_table", {
   merchant_name: text("merchant_name").notNull(),
   username: text("username").notNull(),
   merchant_wallet_address: text("merchant_wallet_address").notNull(),
-  use_vault: boolean("is_vault").notNull(),
+  is_vault_enabled: boolean("is_vault_enabled").notNull(),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at")
     .notNull()

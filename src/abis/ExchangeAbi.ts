@@ -11,6 +11,11 @@ export default [
         name: "_usdcAddress",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "_vaultAddress",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -176,6 +181,56 @@ export default [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "merchant",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "assets",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "shares",
+        type: "uint256",
+      },
+    ],
+    name: "VaultDeposit",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "merchant",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "assets",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "shares",
+        type: "uint256",
+      },
+    ],
+    name: "VaultWithdraw",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "fee",
     outputs: [
@@ -292,11 +347,42 @@ export default [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_uen",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "transferToVault",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "usdcToken",
     outputs: [
       {
         internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "vault",
+    outputs: [
+      {
+        internalType: "contract IERC4626",
         name: "",
         type: "address",
       },
@@ -318,6 +404,19 @@ export default [
       },
     ],
     name: "withdrawFees",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_shares",
+        type: "uint256",
+      },
+    ],
+    name: "withdrawToWallet",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

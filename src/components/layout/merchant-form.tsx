@@ -14,7 +14,7 @@ import { useAccount } from "wagmi";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
@@ -39,6 +39,7 @@ export function MerchantRegistrationForm() {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
   } = useForm<RegistrationFormValues>({
     resolver: zodResolver(merchantRegistrationFormSchema),
@@ -271,9 +272,20 @@ export function MerchantRegistrationForm() {
                   Would you like to use Cube vault feature?
                 </Label>
                 <div className="flex items-center space-x-2">
-                  <Switch id="vault" {...register("vault")} disabled={true} />
+                  <Controller
+                    name="vault"
+                    control={control}
+                    render={({ field }) => (
+                      <Switch
+                        id="vault"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
                   <span className="text-xs text-gray-500 italic">
-                    Vault feature coming soon
+                    Cube vaults are yield-generating vaults that earns you
+                    interest on your funds.
                   </span>
                 </div>
               </LabelInputContainer>
