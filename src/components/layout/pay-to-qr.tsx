@@ -20,7 +20,7 @@ import { useFetchUserByAddress } from "@/hooks/useFetchUserByAddress";
 
 import QRScanner from "@/components/layout/qr-scanner";
 import { ScanQrCode } from "lucide-react";
-import { PayConfirmation } from "../ui/payment/pay-confirmation";
+import { PayConfirmation } from "../ui/transactions/pay-confirmation";
 
 const paymentFormSchema = z.object({
   uen: z.string().min(4).max(50),

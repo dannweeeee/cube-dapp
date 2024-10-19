@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../card";
 import { useReadContract } from "wagmi";
 import Image from "next/image";
@@ -9,6 +9,8 @@ import {
 import VaultAbi from "@/abis/VaultAbi";
 import RegistryAbi from "@/abis/RegistryAbi";
 import { formatUnits } from "viem";
+import { Button } from "@/components/ui/button";
+import { WithdrawalConfirmation } from "../transactions/withdrawal-confirmation";
 
 interface VaultBalanceCardProps {
   uen: string;
@@ -16,6 +18,10 @@ interface VaultBalanceCardProps {
 }
 
 const VaultBalanceCard: React.FC<VaultBalanceCardProps> = ({ uen, name }) => {
+  const [isWithdrawalConfirmationOpen, setIsWithdrawalConfirmationOpen] =
+    useState(false);
+  const [isWithdrawalDisabled, setIsWithdrawalDisabled] = useState(true);
+
   const { data: registryData } = useReadContract({
     abi: RegistryAbi,
     address: BASE_SEPOLIA_REGISTRY_ADDRESS,
@@ -30,7 +36,21 @@ const VaultBalanceCard: React.FC<VaultBalanceCardProps> = ({ uen, name }) => {
     args: [registryData?.wallet_address as `0x${string}`],
   });
 
-  const formattedBalance = vaultData ? formatUnits(vaultData, 6) : "0";
+  const formattedBalance = vaultData ? formatUnits(vaultData, 6) : "-";
+
+  useEffect(() => {
+    if (Number(vaultData) <= 0) {
+      setIsWithdrawalDisabled(true);
+    } else {
+      setIsWithdrawalDisabled(false);
+    }
+  }, [vaultData]);
+
+  console.log(isWithdrawalDisabled);
+
+  const handleWithdrawalConfirmationOpen = () => {
+    setIsWithdrawalConfirmationOpen(true);
+  };
 
   return (
     <Card>
@@ -46,7 +66,21 @@ const VaultBalanceCard: React.FC<VaultBalanceCardProps> = ({ uen, name }) => {
           Aave USDC Lending Market
         </p>
         <p className="text-xs text-muted-foreground italic">0.50% APY</p>
+        <div className="mt-4">
+          <Button
+            className="bg-blue hover:bg-blue-100 text-white w-full sm:w-auto"
+            onClick={handleWithdrawalConfirmationOpen}
+            disabled={isWithdrawalDisabled}
+          >
+            Withdraw
+          </Button>
+        </div>
       </CardContent>
+      <WithdrawalConfirmation
+        amount={Number(formattedBalance)}
+        isOpen={isWithdrawalConfirmationOpen}
+        onOpenChange={setIsWithdrawalConfirmationOpen}
+      />
     </Card>
   );
 };
