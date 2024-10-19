@@ -216,7 +216,7 @@ export function PayConfirmation({
             >
               <TransactionButton
                 className="text-sm relative group/btn  text-[#FFFFFF] w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-                text="Pay to Vault"
+                text="Pay"
                 disabled={isTransactionInProgress}
               />
               <TransactionStatus>
@@ -239,7 +239,7 @@ export function PayConfirmation({
             >
               <TransactionButton
                 className="text-sm relative group/btn  text-[#FFFFFF] w-full rounded-xl h-12 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-                text="Pay to Merchant"
+                text="Pay"
                 disabled={isTransactionInProgress}
               />
               <TransactionStatus>
