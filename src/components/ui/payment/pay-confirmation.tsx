@@ -57,7 +57,6 @@ export function PayConfirmation({
   const approvalAmount = BigInt(Math.ceil(amount * 0.77 * 10 ** 6));
   const formattedApprovalAmount = formatUnits(approvalAmount, 6);
   const { merchantVaultStatus } = useFetchMerchantVaultStatus(uen);
-  console.log(merchantVaultStatus);
 
   const { data } = useReadContract({
     abi: RegistryAbi,
