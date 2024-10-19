@@ -125,8 +125,6 @@ export function RegistrationForm() {
     ];
   }, [registrationArgs, account.address, estimatedValue]);
 
-  console.log("registerBasenameCall", registerBasenameCall);
-
   const handleSuccess = async (transactionResponse: TransactionResponse) => {
     if (isTransactionInProgress || hasPostedTransaction.current) return;
     setIsTransactionInProgress(true);

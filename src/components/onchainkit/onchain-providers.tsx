@@ -31,7 +31,9 @@ function OnchainProviders({ children }: Props) {
             },
           }}
         >
-          <RainbowKitProvider modalSize="wide">{children}</RainbowKitProvider>
+          <RainbowKitProvider modalSize="compact">
+            {children}
+          </RainbowKitProvider>
         </OnchainKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

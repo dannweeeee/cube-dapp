@@ -6,20 +6,8 @@ import { cn } from "@/lib/utils";
 import { ConnectWallet } from "@coinbase/onchainkit/wallet";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useAccount } from "wagmi";
 
 const Hero = () => {
-  const { isConnected } = useAccount();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isConnected) {
-      router.push("/registration");
-    }
-  }, [isConnected, router]);
-
   return (
     <div className="container mx-auto flex flex-col items-center text-center justify-center text-primary py-16 md:py-24 mt-28">
       <motion.h1
