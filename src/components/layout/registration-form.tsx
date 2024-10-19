@@ -37,6 +37,7 @@ import {
 } from "@/lib/constants";
 import { RegistrationArgs } from "@/lib/types";
 import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
+import { SquareArrowOutUpRight } from "lucide-react";
 
 const registrationFormSchema = z.object({
   basename: z.string().min(4).max(20),
@@ -217,7 +218,7 @@ export function RegistrationForm() {
           <div className="relative">
             <Input
               id="basename"
-              placeholder="dann"
+              placeholder="jesse"
               type="text"
               className="pr-20"
               {...register("basename")}
@@ -242,12 +243,24 @@ export function RegistrationForm() {
               </span>
             )}
           </div>
+          <p className="text-xs text-gray-500 mt-2 flex flex-col items-start">
+            You would need Base Sepolia ETH in your wallet to get a Basename.
+            <a
+              href="https://thirdweb.com/base-sepolia-testnet"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline flex items-center cursor-pointer"
+            >
+              Get some ETH here
+              <SquareArrowOutUpRight className="w-3 h-3 ml-1" />
+            </a>
+          </p>
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
           <Input
             id="email"
-            placeholder="dann@gmail.com"
+            placeholder="jesse@base.org"
             type="email"
             {...register("email")}
           />
@@ -260,7 +273,7 @@ export function RegistrationForm() {
             <Label htmlFor="firstname">First Name</Label>
             <Input
               id="firstname"
-              placeholder="Dann"
+              placeholder="Jesse"
               type="text"
               {...register("firstname")}
             />
@@ -274,7 +287,7 @@ export function RegistrationForm() {
             <Label htmlFor="lastname">Last Name</Label>
             <Input
               id="lastname"
-              placeholder="Wee"
+              placeholder="Pollak"
               type="text"
               {...register("lastname")}
             />
