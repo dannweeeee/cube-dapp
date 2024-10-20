@@ -42,6 +42,14 @@ export async function getMerchants() {
   return db.select().from(merchantTable);
 }
 
+export async function getMerchantsWalletAddress() {
+  return db
+    .select({
+      merchant_wallet_address: merchantTable.merchant_wallet_address,
+    })
+    .from(merchantTable);
+}
+
 export async function getMerchantByWalletAddress(
   merchant_wallet_address: SelectMerchant["merchant_wallet_address"]
 ): Promise<

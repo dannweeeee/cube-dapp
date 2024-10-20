@@ -21,12 +21,14 @@ import { BASE_SEPOLIA_REGISTRY_ADDRESS } from "@/lib/constants";
 import MerchantDetailsCard from "../ui/profile/merchant-details-card";
 import { Address } from "viem";
 import { useFetchMerchantVaultStatusByAddress } from "@/hooks/useFetchMerchantVaultStatusByAddress";
+import { useCheckMerchantIfRegistered } from "@/hooks/useCheckMerchantIfRegistered";
 
 const Profile = () => {
   const { address } = useAccount();
   const { merchantVaultStatus } = useFetchMerchantVaultStatusByAddress(
     address as Address
   );
+  const { isRegistered } = useCheckMerchantIfRegistered(address as Address);
 
   const { data } = useReadContract({
     abi: RegistryAbi,
@@ -56,9 +58,11 @@ const Profile = () => {
                 <TabsTrigger className="flex-1 h-[35px]" value="profile">
                   Profile
                 </TabsTrigger>
-                <TabsTrigger className="flex-1 h-[35px]" value="merchant">
-                  Merchant
-                </TabsTrigger>
+                {isRegistered && (
+                  <TabsTrigger className="flex-1 h-[35px]" value="merchant">
+                    Merchant
+                  </TabsTrigger>
+                )}
               </TabsList>
             </div>
             <TabsContent value="profile" className="space-y-4">
