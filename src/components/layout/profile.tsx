@@ -29,6 +29,7 @@ const Profile = () => {
     address as Address
   );
   const { isRegistered } = useCheckMerchantIfRegistered(address as Address);
+  console.log("IS REGISTERED?", isRegistered);
 
   const { data } = useReadContract({
     abi: RegistryAbi,
@@ -39,12 +40,19 @@ const Profile = () => {
 
   const merchants = useMemo(() => {
     return data && data.length > 0
-      ? data.map((merchant) => ({
-          uen: merchant.uen,
-          name: merchant.entity_name,
-          owner: merchant.owner_name,
-          address: merchant.wallet_address,
-        }))
+      ? data.map(
+          (merchant: {
+            uen: string;
+            entity_name: string;
+            owner_name: string;
+            wallet_address: string;
+          }) => ({
+            uen: merchant.uen,
+            name: merchant.entity_name,
+            owner: merchant.owner_name,
+            address: merchant.wallet_address,
+          })
+        )
       : [];
   }, [data]);
 
@@ -85,22 +93,29 @@ const Profile = () => {
             <TabsContent value="merchant" className="space-y-4">
               {address && <UsdcBalanceCard address={address} />}
               <div className="grid gap-4 sm:grid-cols-2">
-                {merchants.map((merchant) => (
-                  <>
-                    <MerchantDetailsCard
-                      key={merchant.uen}
-                      uen={merchant.uen}
-                      name={merchant.name}
-                    />
-                    {merchantVaultStatus && (
-                      <VaultBalanceCard
+                {merchants.map(
+                  (merchant: {
+                    uen: string;
+                    name: string;
+                    owner: string;
+                    address: string;
+                  }) => (
+                    <>
+                      <MerchantDetailsCard
                         key={merchant.uen}
                         uen={merchant.uen}
                         name={merchant.name}
                       />
-                    )}
-                  </>
-                ))}
+                      {merchantVaultStatus && (
+                        <VaultBalanceCard
+                          key={merchant.uen}
+                          uen={merchant.uen}
+                          name={merchant.name}
+                        />
+                      )}
+                    </>
+                  )
+                )}
               </div>
               <div className="space-y-4">
                 <Card>
