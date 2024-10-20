@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold text-blue-600 uppercase tracking-wide">
-            Breaking The Ice In Finance One Cube At A Time
+            Breaking The Ice In Finance <br /> One Cube At A Time
           </h2>
           <p className="mt-1 text-sm text-blue-100/90 font-light">
             Real World Payments 🫱🏻‍🫲🏽 Onchain Economy
