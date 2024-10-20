@@ -30,7 +30,7 @@ const Footer = () => {
             size="icon"
             className="rounded-full bg-yellow-100 hover:bg-yellow-200"
             onClick={() =>
-              window.open("https://github.com/cube-protocol", "_blank")
+              window.open("https://github.com/usecube", "_blank")
             }
           >
             <Github className="w-4 h-4" />
