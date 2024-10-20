@@ -137,7 +137,7 @@ export function MerchantRegistrationForm() {
               merchant_name: data.merchantname,
               username: user.username,
               merchant_wallet_address: address,
-              use_vault: data.vault,
+              is_vault_enabled: data.vault,
             });
 
             console.log("Merchant registered successfully", response);
