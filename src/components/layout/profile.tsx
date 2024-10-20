@@ -29,7 +29,6 @@ const Profile = () => {
     address as Address
   );
   const { isRegistered } = useCheckMerchantIfRegistered(address as Address);
-  console.log("IS REGISTERED?", isRegistered);
 
   const { data } = useReadContract({
     abi: RegistryAbi,
