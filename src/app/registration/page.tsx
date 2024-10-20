@@ -3,23 +3,11 @@
 import React from "react";
 import { RegistrationForm } from "@/components/layout/registration-form";
 import { useAccount } from "wagmi";
-import { useFetchAllUsersAddress } from "@/hooks/useFetchAllUsersAddress";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRedirectUserIfRegistered } from "@/hooks/useRedirectUserIfRegistered";
 
 const Registration = () => {
   const { address, isConnected } = useAccount();
-  const { users, loading } = useFetchAllUsersAddress();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isConnected && address && !loading) {
-      const userExists = users.some((user) => user.wallet_address === address);
-      if (userExists) {
-        router.push("/");
-      }
-    }
-  }, [isConnected, address, users, loading, router]);
+  useRedirectUserIfRegistered(address, isConnected);
 
   return (
     <div className="flex items-center justify-center h-screen">

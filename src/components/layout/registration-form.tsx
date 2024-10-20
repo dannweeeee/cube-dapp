@@ -86,9 +86,7 @@ export function RegistrationForm() {
   useEffect(() => {
     if (isConnected && address && !loading) {
       const userExists = users.some((user) => user.wallet_address === address);
-      if (userExists) {
-        router.push("/");
-      }
+      console.log("userExists", userExists);
     }
   }, [isConnected, address, users, loading, router]);
 
