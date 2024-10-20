@@ -4,6 +4,10 @@ Github Organisation: [Cube](https://github.com/usecube)
 <br />
 Deployed Website: https://usecube.vercel.app
 
+## Tech Stack
+Frontend: NextJS + Typescript
+Backend: Supabase + PostgreSQL + DrizzleORM
+
 ## Deployment
 
 1. Install packages
