@@ -1,6 +1,8 @@
 # Cube Frontend + Backend 🧊
 
-Frontend + Backend Repository that is part of [Cube](https://github.com/usecube)
+Github Organisation: [Cube](https://github.com/usecube)
+<br />
+Deployed Website: https://usecube.vercel.app
 
 ## Deployment
 
