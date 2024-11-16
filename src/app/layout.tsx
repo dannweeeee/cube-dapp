@@ -11,8 +11,21 @@ import { Toaster } from "@/components/ui/toaster";
 import Footer from "@/components/layout/footer";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://usecube.vercel.app"),
   title: "Cube",
   description: "Real World Payments Solution with Crypto",
+  keywords: [
+    "SGQR",
+    "Stablecoins",
+    "ERC4626",
+    "Paymaster",
+    "Basenames",
+    "Onchainkit",
+  ],
+  openGraph: {
+    images:
+      "https://github.com/usecube/.github/blob/main/assets/png/cube-banner.png",
+  },
 };
 
 const OnchainProviders = dynamic(
