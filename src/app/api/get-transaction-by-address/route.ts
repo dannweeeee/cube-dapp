@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getTransactionsByWalletAddress } from "@/db/queries/select";
 import { Transaction } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF = 1000; // 1 second
 

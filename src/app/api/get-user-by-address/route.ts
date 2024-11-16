@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserByWalletAddress } from "@/db/queries/select";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const walletAddress = request.nextUrl.searchParams.get("address");
 

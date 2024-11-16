@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getUsersWalletAddress } from "@/db/queries/select";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const users = await getUsersWalletAddress();

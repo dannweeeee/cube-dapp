@@ -38,7 +38,6 @@ import {
 import { RegistrationArgs } from "@/lib/types";
 import RegistrarControllerAbi from "@/abis/RegistrarControllerAbi";
 import { SquareArrowOutUpRight } from "lucide-react";
-import { useFetchAllUsersAddress } from "@/hooks/useFetchAllUsersAddress";
 
 const registrationFormSchema = z.object({
   basename: z.string().min(4).max(20),
@@ -79,16 +78,6 @@ export function RegistrationForm() {
 
   const [isTransactionInProgress, setIsTransactionInProgress] = useState(false);
   const hasPostedTransaction = useRef(false);
-
-  const { address, isConnected } = useAccount();
-  const { users, loading } = useFetchAllUsersAddress();
-
-  useEffect(() => {
-    if (isConnected && address && !loading) {
-      const userExists = users.some((user) => user.wallet_address === address);
-      console.log("userExists", userExists);
-    }
-  }, [isConnected, address, users, loading, router]);
 
   useEffect(() => {
     const fetchRegistrationData = async () => {

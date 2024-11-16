@@ -111,7 +111,7 @@ export async function estimateMintValue(
   return price;
 }
 
-// Register basename for user (TODO: paymaster logic for this feature)
+// Register basename for user (using dev private key)
 export async function registerBaseName(baseName: string, address: Address) {
   const publicClient = createPublicClient({
     chain: baseSepolia,
