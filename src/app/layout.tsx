@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     images:
-      "https://github.com/usecube/.github/blob/main/assets/png/cube-banner.png",
+      "https://github.com/usecube/.github/blob/main/assets/png/cube-banner.png?raw=true",
   },
 };
 
